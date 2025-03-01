@@ -10,19 +10,63 @@
 
     <div class="container">
         <h2>Login to DocFusion</h2>
-        <form action="#">
+        <form id="loginForm">
             <div class="input-group">
-                <label for="email">Email:</label>
-                <input type="email" id="email" placeholder="Enter your email">
+                <label for="loginEmail">Email:</label>
+                <input type="email" id="loginEmail" placeholder="Enter your email" required>
             </div>
             <div class="input-group">
-                <label for="password">Password:</label>
-                <input type="password" id="password" placeholder="Enter your password">
+                <label for="loginPassword">Password:</label>
+                <input type="password" id="loginPassword" placeholder="Enter your password" required>
             </div>
-            <button type="submit">Login</button>
+            <button type="submit" id="loginBtn">Login</button>
             <p>Don't have an account? <a href="register.html">Register</a></p>
         </form>
     </div>
+
+    <script>
+        document.getElementById("loginForm").addEventListener("submit", async function (event) {
+            event.preventDefault();
+
+            const email = document.getElementById("loginEmail").value.trim();
+            const password = document.getElementById("loginPassword").value.trim();
+            const loginBtn = document.getElementById("loginBtn");
+
+            if (!email || !password) {
+                alert("Please enter both email and password.");
+                return;
+            }
+
+            loginBtn.disabled = true;
+            loginBtn.textContent = "Logging in...";
+
+            try {
+                const response = await fetch("http://localhost:3000/api/login", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ email, password }),
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    alert(result.message);
+                    localStorage.setItem("user", JSON.stringify(result.user));
+                    localStorage.setItem("token", result.token);
+
+                    window.location.href = result.user.role === "admin" ? "admin-dashboard.html" : "dashboard.html";
+                } else {
+                    alert(result.message);
+                }
+            } catch (error) {
+                alert("Server error! Please try again later.");
+                console.error("Login Error:", error);
+            } finally {
+                loginBtn.disabled = false;
+                loginBtn.textContent = "Login";
+            }
+        });
+    </script>
 
 </body>
 </html>

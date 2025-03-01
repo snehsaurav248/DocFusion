@@ -11,7 +11,7 @@ document.getElementById("loginForm")?.addEventListener("submit", async function 
     }
 
     loginBtn.disabled = true;
-    loginBtn.textContent = "Logging in..."; // Show loading state
+    loginBtn.textContent = "Logging in...";
 
     try {
         const response = await fetch("http://localhost:3000/api/login", {
@@ -21,22 +21,22 @@ document.getElementById("loginForm")?.addEventListener("submit", async function 
         });
 
         const result = await response.json();
-        
-        if (response.ok) {
-            alert(result.message);
-            localStorage.setItem("user", JSON.stringify(result.user));
-            localStorage.setItem("token", result.token); // Save JWT Token
 
-            window.location.href = result.user.role === "admin" ? "admin-dashboard.html" : "dashboard.html";
-        } else {
-            alert(result.message);
+        if (!response.ok) {
+            throw new Error(result.message || "Login failed. Please try again.");
         }
+
+        alert(result.message);
+        localStorage.setItem("user", JSON.stringify(result.user));
+        localStorage.setItem("token", result.token); // Save JWT Token
+
+        window.location.href = result.user.role === "admin" ? "admin-dashboard.html" : "dashboard.html";
     } catch (error) {
-        alert("Server error! Please try again later.");
+        alert(error.message);
         console.error("Login Error:", error);
     } finally {
         loginBtn.disabled = false;
-        loginBtn.textContent = "Login"; // Reset button text
+        loginBtn.textContent = "Login";
     }
 });
 
@@ -54,7 +54,7 @@ document.getElementById("registerForm")?.addEventListener("submit", async functi
     }
 
     registerBtn.disabled = true;
-    registerBtn.textContent = "Registering..."; // Show loading state
+    registerBtn.textContent = "Registering...";
 
     try {
         const response = await fetch("http://localhost:3000/api/register", {
@@ -64,18 +64,18 @@ document.getElementById("registerForm")?.addEventListener("submit", async functi
         });
 
         const result = await response.json();
-        
-        if (response.ok) {
-            alert(result.message);
-            window.location.href = "login.html"; // Redirect to login page
-        } else {
-            alert(result.message);
+
+        if (!response.ok) {
+            throw new Error(result.message || "Registration failed. Please try again.");
         }
+
+        alert(result.message);
+        window.location.href = "login.html";
     } catch (error) {
-        alert("Server error! Please try again later.");
+        alert(error.message);
         console.error("Registration Error:", error);
     } finally {
         registerBtn.disabled = false;
-        registerBtn.textContent = "Register"; // Reset button text
+        registerBtn.textContent = "Register";
     }
 });

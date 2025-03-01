@@ -3,21 +3,57 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - DocFusion</title>
+    <title>User Dashboard - DocFusion</title>
     <link rel="stylesheet" href="styles.css">
 </head>
-<body>
+<body onload="checkAuth()">
     <header>
-        <h1>User Dashboard</h1>
+        <h1>Welcome, <span id="username">User</span>!</h1>
         <nav>
             <a href="index.html">Home</a>
-            <a href="admin.html">Admin</a>
-            <a href="login.html">Logout</a>
+            <a href="admin-dashboard.html" id="adminLink" style="display: none;">Admin Panel</a>
+            <button onclick="logout()">Logout</button>
         </nav>
     </header>
+
     <main>
         <h2>Your Documents</h2>
         <p>Upload, manage, and match documents here.</p>
+
+        <section id="documentSection">
+            <h3>Uploaded Documents</h3>
+            <ul id="documentList">
+                <li>No documents uploaded yet.</li>
+            </ul>
+        </section>
+
+        <button onclick="uploadDocument()">Upload New Document</button>
     </main>
+
+    <script>
+        function checkAuth() {
+            const user = JSON.parse(localStorage.getItem("user"));
+            if (!user) {
+                window.location.href = "login.html";
+                return;
+            }
+            
+            document.getElementById("username").textContent = user.name;
+
+            if (user.role === "admin") {
+                document.getElementById("adminLink").style.display = "inline";
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem("user");
+            localStorage.removeItem("token");
+            window.location.href = "login.html";
+        }
+
+        function uploadDocument() {
+            alert("Upload feature coming soon!");
+        }
+    </script>
 </body>
 </html>

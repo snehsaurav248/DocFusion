@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - DocFusion</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body onload="checkAdminAuth()">
+    <header>
+        <h1>Admin Panel</h1>
+        <nav>
+            <a href="dashboard.html">User Dashboard</a>
+            <button onclick="logout()">Logout</button>
+        </nav>
+    </header>
+
+    <main>
+        <h2>Manage Users & Documents</h2>
+
+        <section id="userManagement">
+            <h3>Users List</h3>
+            <ul id="userList">
+                <li>Loading users...</li>
+            </ul>
+        </section>
+
+        <section id="documentManagement">
+            <h3>Documents List</h3>
+            <ul id="documentList">
+                <li>Loading documents...</li>
+            </ul>
+        </section>
+    </main>
+
+    <script>
+        function checkAdminAuth() {
+            const user = JSON.parse(localStorage.getItem("user"));
+            if (!user || user.role !== "admin") {
+                alert("Access denied! Only admins can access this page.");
+                window.location.href = "login.html";
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem("user");
+            localStorage.removeItem("token");
+            window.location.href = "login.html";
+        }
+
+        function fetchUsersAndDocuments() {
+            // Placeholder: Fetch users and documents from API in the future
+            document.getElementById("userList").innerHTML = "<li>John Doe (john@example.com)</li>";
+            document.getElementById("documentList").innerHTML = "<li>Project Proposal.pdf</li>";
+        }
+
+        document.addEventListener("DOMContentLoaded", fetchUsersAndDocuments);
+    </script>
+</body>
+</html>
