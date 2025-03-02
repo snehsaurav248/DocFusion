@@ -27,7 +27,7 @@
             </ul>
         </section>
 
-        <input type="file" id="fileInput" accept=".pdf,.docx,.txt">
+        <input type="file" id="fileInput" accept=".pdf,.docx,.txt,.png,.jpg">
         <button onclick="uploadDocument()">Upload New Document</button>
     </main>
 
@@ -76,19 +76,23 @@
 
         async function uploadDocument() {
             const fileInput = document.getElementById("fileInput");
+            // console.log("-----------before-"+fileInput)
             if (!fileInput.files.length) {
                 alert("Please select a file to upload.");
                 return;
             }
 
+console.log("xyz");
+            console.log("---------"+ fileInput.files[0])
             const formData = new FormData();
-            formData.append("document", fileInput.files[0]);
-
+            formData.append("file", fileInput.files[0]); // Updated field name to match backend
+    console.log({...formData} +"abc");
+console.log("abcd");
             try {
                 const token = localStorage.getItem("token");
                 const response = await fetch("http://localhost:3000/api/files/upload", {
                     method: "POST",
-                    headers: { "Authorization": `Bearer ${token}` },
+                    headers: { "Authorization": `Bearer ${token}` }, // No Content-Type needed for FormData
                     body: formData
                 });
 
@@ -96,7 +100,7 @@
 
                 alert("Document uploaded successfully!");
                 fileInput.value = "";
-                fetchUserDocuments(); // Refresh document list
+                fetchUserDocuments(); 
 
             } catch (error) {
                 console.error("Upload error:", error);

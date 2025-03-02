@@ -54,7 +54,7 @@
                     localStorage.setItem("user", JSON.stringify(result.user));
                     localStorage.setItem("token", result.token);
 
-                    window.location.href = result.user.role === "admin" ? "admin-dashboard.html" : "dashboard.html";
+                    window.location.href = result.user.role === "admin" ? "" : "dashboard.html";
                 } else {
                     alert(result.message);
                 }

@@ -57,7 +57,7 @@
                 });
                 const users = await userResponse.json();
 
-                const docResponse = await fetch("http://localhost:3000/api/documents", {
+                const docResponse = await fetch("http://localhost:3000/api/files/documents", {
                     headers: { "Authorization": `Bearer ${token}` }
                 });
                 const documents = await docResponse.json();
