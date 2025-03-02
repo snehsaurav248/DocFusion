@@ -37,7 +37,8 @@ db.serialize(() => {
         email TEXT UNIQUE NOT NULL,
         password TEXT NOT NULL,
         role TEXT DEFAULT 'user',
-        credits INTEGER DEFAULT 10
+        credits INTEGER DEFAULT 20,
+        isAdmin BOOLEAN DEFAULT 0
     )`);
 });
 
@@ -62,9 +63,9 @@ app.get("/", (req, res) => {
 });
 
 // User Registration
-app.post("/api/register", async (req, res) => {
+app.post("/auth/register", async (req, res) => {
     try {
-        const { name, email, password, role } = req.body;
+        const { name, email, password, role, isAdmin } = req.body;
 
         if (!name || !email || !password) {
             return res.status(400).json({ message: "All fields are required!" });
@@ -82,8 +83,8 @@ app.post("/api/register", async (req, res) => {
 
             // Insert user into database
             db.run(
-                `INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)`,
-                [name, email, hashedPassword, role || "user"],
+                `INSERT INTO users (name, email, password, role, isAdmin) VALUES (?, ?, ?, ?, ?)`,
+                [name, email, hashedPassword, role || "user", isAdmin ? 1 : 0],
                 function (err) {
                     if (err) {
                         console.error("❌ Registration Error:", err.message);
@@ -100,7 +101,7 @@ app.post("/api/register", async (req, res) => {
 });
 
 // User Login
-app.post("/api/login", (req, res) => {
+app.post("/auth/login", (req, res) => {
     try {
         const { email, password } = req.body;
 
@@ -123,7 +124,7 @@ app.post("/api/login", (req, res) => {
 
             // Generate JWT token
             const token = jwt.sign(
-                { id: user.id, email: user.email, role: user.role },
+                { id: user.id, email: user.email, role: user.role, isAdmin: user.isAdmin },
                 SECRET_KEY,
                 { expiresIn: "1h" }
             );
@@ -131,7 +132,13 @@ app.post("/api/login", (req, res) => {
             res.json({
                 message: "✅ Login successful!",
                 token,
-                user: { name: user.name, email: user.email, role: user.role, credits: user.credits }
+                user: { 
+                    name: user.name, 
+                    email: user.email, 
+                    role: user.role, 
+                    credits: user.credits,
+                    isAdmin: user.isAdmin
+                }
             });
         });
     } catch (error) {
