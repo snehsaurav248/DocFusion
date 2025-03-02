@@ -1,59 +1,108 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Dashboard - DocFusion</title>
-    <link rel="stylesheet" href="styles.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Dashboard - DocFusion</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body onload="checkAuth()">
-    <header>
-        <h1>Welcome, <span id="username">User</span>!</h1>
-        <nav>
-            <a href="index.html">Home</a>
-            <a href="admin-dashboard.html" id="adminLink" style="display: none;">Admin Panel</a>
-            <button onclick="logout()">Logout</button>
-        </nav>
-    </header>
+    <header>
+        <h1>Welcome, <span id="username">User</span>!</h1>
+        <nav>
+            <a href="index.html">Home</a>
+            <a href="admin-dashboard.html" id="adminLink" style="display: none;">Admin Panel</a>
+            <button onclick="logout()">Logout</button>
+        </nav>
+    </header>
 
-    <main>
-        <h2>Your Documents</h2>
-        <p>Upload, manage, and match documents here.</p>
+    <main>
+        <h2>Your Documents</h2>
+        <p>Upload, manage, and match documents here.</p>
 
-        <section id="documentSection">
-            <h3>Uploaded Documents</h3>
-            <ul id="documentList">
-                <li>No documents uploaded yet.</li>
-            </ul>
-        </section>
+        <section id="documentSection">
+            <h3>Uploaded Documents</h3>
+            <ul id="documentList">
+                <li>Loading documents...</li>
+            </ul>
+        </section>
 
-        <button onclick="uploadDocument()">Upload New Document</button>
-    </main>
+        <input type="file" id="fileInput" accept=".pdf,.docx,.txt">
+        <button onclick="uploadDocument()">Upload New Document</button>
+    </main>
 
-    <script>
-        function checkAuth() {
-            const user = JSON.parse(localStorage.getItem("user"));
-            if (!user) {
-                window.location.href = "login.html";
-                return;
-            }
-            
-            document.getElementById("username").textContent = user.name;
+    <script>
+        function checkAuth() {
+            const user = JSON.parse(localStorage.getItem("user"));
+            if (!user) {
+                window.location.href = "login.html";
+                return;
+            }
+            
+            document.getElementById("username").textContent = user.name;
 
-            if (user.role === "admin") {
-                document.getElementById("adminLink").style.display = "inline";
-            }
-        }
+            if (user.role === "admin") {
+                document.getElementById("adminLink").style.display = "inline";
+            }
 
-        function logout() {
-            localStorage.removeItem("user");
-            localStorage.removeItem("token");
-            window.location.href = "login.html";
-        }
+            fetchUserDocuments();
+        }
 
-        function uploadDocument() {
-            alert("Upload feature coming soon!");
-        }
-    </script>
+        function logout() {
+            localStorage.removeItem("user");
+            localStorage.removeItem("token");
+            window.location.href = "login.html";
+        }
+
+        async function fetchUserDocuments() {
+            try {
+                const token = localStorage.getItem("token");
+                const response = await fetch("http://localhost:3000/api/documents", {
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+
+                const documents = await response.json();
+                const docList = document.getElementById("documentList");
+
+                docList.innerHTML = documents.length
+                    ? documents.map(doc => `<li>${doc.title}</li>`).join("")
+                    : "<li>No documents uploaded yet.</li>";
+
+            } catch (error) {
+                console.error("Error fetching documents:", error);
+                document.getElementById("documentList").innerHTML = "<li>Failed to load documents.</li>";
+            }
+        }
+
+        async function uploadDocument() {
+            const fileInput = document.getElementById("fileInput");
+            if (!fileInput.files.length) {
+                alert("Please select a file to upload.");
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append("document", fileInput.files[0]);
+
+            try {
+                const token = localStorage.getItem("token");
+                const response = await fetch("http://localhost:3000/api/upload", {
+                    method: "POST",
+                    headers: { "Authorization": `Bearer ${token}` },
+                    body: formData
+                });
+
+                if (!response.ok) throw new Error("Upload failed");
+
+                alert("Document uploaded successfully!");
+                fileInput.value = "";
+                fetchUserDocuments(); // Refresh document list
+
+            } catch (error) {
+                console.error("Upload error:", error);
+                alert("Error uploading document.");
+            }
+        }
+    </script>
 </body>
 </html>
