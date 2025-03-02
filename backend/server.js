@@ -5,6 +5,7 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const path = require("path");
 const fs = require("fs");
+const fileUploadRoutes = require("./fileUpload"); // Import file upload routes
 
 const app = express();
 const PORT = 3000;
@@ -40,10 +41,20 @@ db.serialize(() => {
     )`);
 });
 
+// Ensure `uploads` directory exists for file storage
+const uploadDir = path.join(__dirname, "uploads");
+if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+}
+
 // Middleware
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(cors({ origin: "*", credentials: true }));
 app.use(express.static(path.join(__dirname, "../frontend"))); // Serve frontend files
+
+// Use file upload routes
+app.use("/api/files", fileUploadRoutes);
 
 // Root Route - Serve index.html
 app.get("/", (req, res) => {
@@ -54,7 +65,7 @@ app.get("/", (req, res) => {
 app.post("/api/register", async (req, res) => {
     try {
         const { name, email, password, role } = req.body;
-        
+
         if (!name || !email || !password) {
             return res.status(400).json({ message: "All fields are required!" });
         }
