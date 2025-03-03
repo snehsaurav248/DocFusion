@@ -1,72 +1,83 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - DocFusion</title>
-    <link rel="stylesheet" href="styles.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - DocFusion</title>
 </head>
-<body>
+<body style="background: linear-gradient(135deg, #4a90e2, #6b73ff); display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; padding: 10px; font-family: 'Poppins', sans-serif;">
 
-    <div class="container">
-        <h2>Login to DocFusion</h2>
-        <form id="loginForm">
-            <div class="input-group">
-                <label for="loginEmail">Email:</label>
-                <input type="email" id="loginEmail" placeholder="Enter your email" required>
-            </div>
-            <div class="input-group">
-                <label for="loginPassword">Password:</label>
-                <input type="password" id="loginPassword" placeholder="Enter your password" required>
-            </div>
-            <button type="submit" id="loginBtn">Login</button>
-            <p>Don't have an account? <a href="register.html">Register</a></p>
-        </form>
-    </div>
+    <div style="width: 100%; max-width: 400px; padding: 30px; background: white; border-radius: 12px; box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.2); text-align: center;">
+        <h2 style="font-size: 24px; font-weight: 600; margin-bottom: 20px; color: #333;">Login to DocFusion</h2>
+        
+        <form id="loginForm">
+            <div style="margin-bottom: 15px; text-align: left;">
+                <label for="loginEmail" style="font-size: 14px; font-weight: 600; color: #555;">Email:</label>
+                <input type="email" id="loginEmail" placeholder="Enter your email" required 
+                    style="width: 100%; padding: 12px; margin-top: 5px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; outline: none; transition: 0.3s;">
+            </div>
 
-    <script>
-        document.getElementById("loginForm").addEventListener("submit", async function (event) {
-            event.preventDefault();
+            <div style="margin-bottom: 15px; text-align: left;">
+                <label for="loginPassword" style="font-size: 14px; font-weight: 600; color: #555;">Password:</label>
+                <input type="password" id="loginPassword" placeholder="Enter your password" required 
+                    style="width: 100%; padding: 12px; margin-top: 5px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; outline: none; transition: 0.3s;">
+            </div>
 
-            const email = document.getElementById("loginEmail").value.trim();
-            const password = document.getElementById("loginPassword").value.trim();
-            const loginBtn = document.getElementById("loginBtn");
+            <button type="submit" id="loginBtn" 
+                style="width: 100%; padding: 12px; background: #4a90e2; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; transition: 0.3s ease; display: block;">
+                Login
+            </button>
 
-            if (!email || !password) {
-                alert("Please enter both email and password.");
-                return;
-            }
+            <p style="margin-top: 15px; font-size: 14px;">
+                Don't have an account? 
+                <a href="register.html" style="color: #4a90e2; text-decoration: none; font-weight: bold;">Register</a>
+            </p>
+        </form>
+    </div>
 
-            loginBtn.disabled = true;
-            loginBtn.textContent = "Logging in...";
+    <script>
+        document.getElementById("loginForm").addEventListener("submit", async function (event) {
+            event.preventDefault();
 
-            try {
-                const response = await fetch("http://localhost:3000/api/login", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ email, password }),
-                });
+            const email = document.getElementById("loginEmail").value.trim();
+            const password = document.getElementById("loginPassword").value.trim();
+            const loginBtn = document.getElementById("loginBtn");
 
-                const result = await response.json();
+            if (!email || !password) {
+                alert("Please enter both email and password.");
+                return;
+            }
 
-                if (response.ok) {
-                    alert(result.message);
-                    localStorage.setItem("user", JSON.stringify(result.user));
-                    localStorage.setItem("token", result.token);
+            loginBtn.disabled = true;
+            loginBtn.textContent = "Logging in...";
 
-                    window.location.href = result.user.role === "admin" ? "" : "dashboard.html";
-                } else {
-                    alert(result.message);
-                }
-            } catch (error) {
-                alert("Server error! Please try again later.");
-                console.error("Login Error:", error);
-            } finally {
-                loginBtn.disabled = false;
-                loginBtn.textContent = "Login";
-            }
-        });
-    </script>
+            try {
+                const response = await fetch("http://localhost:3000/auth/login", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ email, password }),
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    alert(result.message);
+                    localStorage.setItem("user", JSON.stringify(result.user));
+                    localStorage.setItem("token", result.token);
+                    
+                    window.location.href = result.user.role === "admin" ? "admin-dashboard.html" : "dashboard.html";
+                } else {
+                    alert(result.message);
+                }
+            } catch (error) {
+                alert("Server error! Please try again later.");
+                console.error("Login Error:", error);
+            } finally {
+                loginBtn.disabled = false;
+                loginBtn.textContent = "Login";
+            }
+        });
+    </script>
 
 </body>
 </html>

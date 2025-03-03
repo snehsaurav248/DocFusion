@@ -1,33 +1,176 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register - DocFusion</title>
-    <link rel="stylesheet" href="styles.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - DocFusion</title>
+    <style>
+        body {
+            background: linear-gradient(135deg, #4a90e2, #6b73ff);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            padding: 10px;
+            font-family: 'Poppins', sans-serif;
+        }
+        .container {
+            width: 100%;
+            max-width: 400px;
+            padding: 30px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+        h2 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        .input-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+        label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #555;
+            display: block;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            margin-top: 5px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+            transition: 0.3s;
+        }
+        input:focus {
+            border-color: #4a90e2;
+            box-shadow: 0 0 5px rgba(74, 144, 226, 0.5);
+        }
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+        .checkbox-group input {
+            width: auto;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #4a90e2;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s ease;
+        }
+        button:hover {
+            background: #3a7bd5;
+        }
+        p {
+            margin-top: 15px;
+            font-size: 14px;
+        }
+        a {
+            color: #4a90e2;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
 <body>
+    <div class="container">
+        <h2>Create an Account</h2>
+        <form id="registerForm">
+            <div class="input-group">
+                <label for="registerName">Full Name:</label>
+                <input type="text" id="registerName" placeholder="Enter your full name" required>
+            </div>
+            <div class="input-group">
+                <label for="registerEmail">Email:</label>
+                <input type="email" id="registerEmail" placeholder="Enter your email" required>
+            </div>
+            <div class="input-group">
+                <label for="registerPassword">Password:</label>
+                <input type="password" id="registerPassword" placeholder="Enter your password" required>
+            </div>
+            <div class="checkbox-group">
+                <input type="checkbox" id="isAdmin">
+                <label for="isAdmin">Register as Admin</label>
+            </div>
+            <button type="submit" id="registerBtn">Register</button>
+            <p>Already have an account? <a href="login.html">Login</a></p>
+        </form>
+    </div>
+    <script>
+        document.getElementById("registerForm").addEventListener("submit", async function (event) {
+            event.preventDefault();
+            
+            const name = document.getElementById("registerName").value.trim();
+            const email = document.getElementById("registerEmail").value.trim();
+            const password = document.getElementById("registerPassword").value.trim();
+            const isAdmin = document.getElementById("isAdmin").checked;
+            const registerBtn = document.getElementById("registerBtn");
 
-    <div class="container">
-        <h2>Create an Account</h2>
-        <form id="registerForm">  <!-- ✅ Added ID -->
-            <div class="input-group">
-                <label for="registerName">Full Name:</label>
-                <input type="text" id="registerName" placeholder="Enter your full name" required>
-            </div>
-            <div class="input-group">
-                <label for="registerEmail">Email:</label>
-                <input type="email" id="registerEmail" placeholder="Enter your email" required>
-            </div>
-            <div class="input-group">
-                <label for="registerPassword">Password:</label>
-                <input type="password" id="registerPassword" placeholder="Enter your password" required>
-            </div>
-            <button type="submit" id="registerBtn">Register</button> <!-- ✅ Added ID -->
-            <p>Already have an account? <a href="login.html">Login</a></p>
-        </form>
-    </div>
+            // Basic client-side validation
+            if (!name || !email || !password) {
+                alert("Please fill in all fields.");
+                return;
+            }
+            if (!/^\S+@\S+\.\S+$/.test(email)) {
+                alert("Enter a valid email address.");
+                return;
+            }
+            if (password.length < 6) {
+                alert("Password must be at least 6 characters long.");
+                return;
+            }
 
-    <script src="script.js"></script> <!-- ✅ Ensure script.js is included -->
+            registerBtn.disabled = true;
+            registerBtn.textContent = "Registering...";
+
+            try {
+                const response = await fetch("http://localhost:3000/auth/register", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ name, email, password, isAdmin }),
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    alert(result.message);
+                    registerBtn.textContent = "Registered!";
+                    registerBtn.disabled = true;
+                    setTimeout(() => {
+                        window.location.href = "login.html";
+                    }, 1000);
+                } else {
+                    alert(result.message);
+                    registerBtn.disabled = false;
+                    registerBtn.textContent = "Register";
+                }
+            } catch (error) {
+                alert("Server error! Please try again later.");
+                console.error("Registration Error:", error);
+                registerBtn.disabled = false;
+                registerBtn.textContent = "Register";
+            }
+        });
+    </script>
 </body>
 </html>

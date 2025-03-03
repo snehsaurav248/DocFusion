@@ -2,6 +2,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const loginForm = document.getElementById("loginForm");
     const registerForm = document.getElementById("registerForm");
 
+    // LOGIN FUNCTIONALITY
     if (loginForm) {
         loginForm.addEventListener("submit", async function (event) {
             event.preventDefault();
@@ -19,7 +20,7 @@ document.addEventListener("DOMContentLoaded", function () {
             loginBtn.textContent = "Logging in...";
 
             try {
-                const response = await fetch("http://localhost:3000/api/login", {
+                const response = await fetch("http://localhost:3000/auth/login", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ email, password }),
@@ -35,8 +36,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 localStorage.setItem("user", JSON.stringify(result.user));
                 localStorage.setItem("token", result.token);
 
-                const userRole = result.user?.role || "user";
-                const redirectPage = userRole === "admin" ? "admin-dashboard.html" : "dashboard.html";
+                // Role-based redirection
+                const role = result.user?.role; // Expecting role from backend
+                const redirectPage = role === "admin" ? "admin-dashboard.html" : "dashboard.html";
 
                 window.location.href = redirectPage;
             } catch (error) {
@@ -49,6 +51,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
+    // REGISTER FUNCTIONALITY
     if (registerForm) {
         registerForm.addEventListener("submit", async function (event) {
             event.preventDefault();
@@ -56,6 +59,8 @@ document.addEventListener("DOMContentLoaded", function () {
             const name = document.getElementById("registerName").value.trim();
             const email = document.getElementById("registerEmail").value.trim();
             const password = document.getElementById("registerPassword").value.trim();
+            const isAdmin = document.getElementById("registerIsAdmin").checked;
+            const role = isAdmin ? "admin" : "user"; // Assign role based on checkbox
             const registerBtn = document.getElementById("registerBtn");
 
             if (!name || !email || !password) {
@@ -67,10 +72,10 @@ document.addEventListener("DOMContentLoaded", function () {
             registerBtn.textContent = "Registering...";
 
             try {
-                const response = await fetch("http://localhost:3000/api/register", {
+                const response = await fetch("http://localhost:3000/auth/register", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ name, email, password }),
+                    body: JSON.stringify({ name, email, password, role }),
                 });
 
                 const result = await response.json();

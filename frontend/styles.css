@@ -9,80 +9,96 @@
 }
 
 body {
-    background: #f4f7fe;
+    background: linear-gradient(135deg, #4a90e2, #6b73ff);
     display: flex;
     align-items: center;
     justify-content: center;
     height: 100vh;
     margin: 0;
+    padding: 10px;
 }
 
-/* Login Form Container */
+/* Main Container */
 .container {
-    width: 400px;
-    padding: 20px;
+    width: 100%;
+    max-width: 420px;
+    padding: 30px;
     background: white;
-    border-radius: 10px;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.2);
     text-align: center;
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
 }
 
-h2 {
-    text-align: center;
-    margin-bottom: 20px;
+.container:hover {
+    transform: scale(1.03);
+    box-shadow: 0px 12px 25px rgba(0, 0, 0, 0.25);
+}
+
+h1 {
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 15px;
     color: #333;
 }
 
-.input-group {
-    margin-bottom: 15px;
-    text-align: left;
+/* Buttons Styling */
+.btn-group {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 20px;
 }
 
-.input-group label {
-    font-size: 14px;
+.btn {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
     font-weight: 600;
-    color: #555;
+    cursor: pointer;
+    transition: 0.3s ease;
+    text-decoration: none;
+    text-align: center;
+    display: block;
 }
 
-.input-group input {
-    width: 100%;
-    padding: 10px;
-    margin-top: 5px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    font-size: 14px;
-}
-
-/* Button Styling */
-button {
-    width: 100%;
+/* Login Button */
+.btn-login {
     background: #4a90e2;
     color: white;
-    padding: 10px;
-    border: none;
-    border-radius: 5px;
-    font-size: 16px;
-    cursor: pointer;
-    transition: background 0.3s ease;
 }
 
-button:hover {
+.btn-login:hover {
     background: #3578d8;
+    transform: scale(1.05);
 }
 
-/* Link Styling */
-p {
-    text-align: center;
-    margin-top: 10px;
-    font-size: 14px;
+/* Register Button */
+.btn-register {
+    background: #6b73ff;
+    color: white;
 }
 
-p a {
-    color: #4a90e2;
-    text-decoration: none;
-    font-weight: bold;
+.btn-register:hover {
+    background: #5a63e8;
+    transform: scale(1.05);
 }
 
-p a:hover {
-    text-decoration: underline;
+/* Responsive Design */
+@media (max-width: 450px) {
+    .container {
+        width: 90%;
+        padding: 25px;
+    }
+
+    h1 {
+        font-size: 22px;
+    }
+
+    .btn {
+        font-size: 15px;
+        padding: 10px;
+    }
 }

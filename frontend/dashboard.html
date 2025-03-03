@@ -4,31 +4,31 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Dashboard - DocFusion</title>
-    <link rel="stylesheet" href="styles.css">
 </head>
-<body onload="checkAuth()">
-    <header>
+<body onload="checkAuth()" style="font-family: Arial, sans-serif; margin: 0; padding: 0; background: linear-gradient(to right, #4facfe, #00f2fe); color: #333; display: flex; flex-direction: column; align-items: center; min-height: 100vh;">
+
+    <header style="background: #fff; padding: 15px; width: 100%; box-shadow: 0 4px 6px rgba(0,0,0,0.1); text-align: center;">
         <h1>Welcome, <span id="username">User</span>!</h1>
         <nav>
-            <a href="index.html">Home</a>
-            <a href="admin-dashboard.html" id="adminLink" style="display: none;">Admin Panel</a>
-            <button onclick="logout()">Logout</button>
+            <a href="index.html" style="margin: 0 15px; color: #007bff; text-decoration: none; font-weight: bold;">Home</a>
+            <a href="admin-dashboard.html" id="adminLink" style="margin: 0 15px; color: #007bff; text-decoration: none; font-weight: bold; display: none;">Admin Panel</a>
+            <button onclick="logout()" style="background: #ff4d4d; color: white; border: none; padding: 10px 15px; font-size: 14px; border-radius: 5px; cursor: pointer; transition: 0.3s;">Logout</button>
         </nav>
     </header>
 
-    <main>
+    <main style="background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); margin-top: 20px; width: 90%; max-width: 500px; text-align: center;">
         <h2>Your Documents</h2>
         <p>Upload, manage, and match documents here.</p>
 
-        <section id="documentSection">
+        <section id="documentSection" style="margin-bottom: 20px;">
             <h3>Uploaded Documents</h3>
-            <ul id="documentList">
-                <li>Loading documents...</li>
+            <ul id="documentList" style="list-style: none; padding: 0;">
+                <li style="background: #f8f9fa; padding: 10px; margin: 5px 0; border-radius: 5px;">Loading documents...</li>
             </ul>
         </section>
 
-        <input type="file" id="fileInput" accept=".pdf,.docx,.txt,.png,.jpg">
-        <button onclick="uploadDocument()">Upload New Document</button>
+        <input type="file" id="fileInput" accept=".pdf,.docx,.txt,.png,.jpg" style="margin-bottom: 10px; padding: 8px; border: 1px solid #ccc; border-radius: 5px;">
+        <button onclick="uploadDocument()" style="background: #28a745; color: white; border: none; padding: 10px 15px; font-size: 14px; border-radius: 5px; cursor: pointer; transition: 0.3s;">Upload New Document</button>
     </main>
 
     <script>
@@ -38,13 +38,10 @@
                 window.location.href = "login.html";
                 return;
             }
-            
             document.getElementById("username").textContent = user.name;
-
             if (user.role === "admin") {
                 document.getElementById("adminLink").style.display = "inline";
             }
-
             fetchUserDocuments();
         }
 
@@ -60,39 +57,32 @@
                 const response = await fetch("http://localhost:3000/api/documents", {
                     headers: { "Authorization": `Bearer ${token}` }
                 });
-
                 const documents = await response.json();
                 const docList = document.getElementById("documentList");
-
                 docList.innerHTML = documents.length
-                    ? documents.map(doc => `<li>${doc.title}</li>`).join("")
-                    : "<li>No documents uploaded yet.</li>";
-
+                    ? documents.map(doc => `<li style="background: #e9ecef; padding: 10px; margin: 5px 0; border-radius: 5px;">${doc.title}</li>`).join("")
+                    : "<li style='color: #999;'>No documents uploaded yet.</li>";
             } catch (error) {
                 console.error("Error fetching documents:", error);
-                document.getElementById("documentList").innerHTML = "<li>Failed to load documents.</li>";
+                document.getElementById("documentList").innerHTML = "<li style='color: red;'>Failed to load documents.</li>";
             }
         }
 
         async function uploadDocument() {
             const fileInput = document.getElementById("fileInput");
-            // console.log("-----------before-"+fileInput)
             if (!fileInput.files.length) {
                 alert("Please select a file to upload.");
                 return;
             }
 
-console.log("xyz");
-            console.log("---------"+ fileInput.files[0])
             const formData = new FormData();
-            formData.append("file", fileInput.files[0]); // Updated field name to match backend
-    console.log({...formData} +"abc");
-console.log("abcd");
+            formData.append("file", fileInput.files[0]);
+
             try {
                 const token = localStorage.getItem("token");
                 const response = await fetch("http://localhost:3000/api/files/upload", {
                     method: "POST",
-                    headers: { "Authorization": `Bearer ${token}` }, // No Content-Type needed for FormData
+                    headers: { "Authorization": `Bearer ${token}` },
                     body: formData
                 });
 
@@ -100,7 +90,7 @@ console.log("abcd");
 
                 alert("Document uploaded successfully!");
                 fileInput.value = "";
-                fetchUserDocuments(); 
+                fetchUserDocuments();
 
             } catch (error) {
                 console.error("Upload error:", error);
@@ -108,5 +98,6 @@ console.log("abcd");
             }
         }
     </script>
+
 </body>
 </html>

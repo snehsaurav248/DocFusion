@@ -65,7 +65,8 @@ app.get("/", (req, res) => {
 // User Registration
 app.post("/auth/register", async (req, res) => {
     try {
-        const { name, email, password, role, isAdmin } = req.body;
+        const { name, email, password, isAdmin } = req.body;
+        const role = isAdmin ? "admin" : "user";
 
         if (!name || !email || !password) {
             return res.status(400).json({ message: "All fields are required!" });
@@ -84,7 +85,7 @@ app.post("/auth/register", async (req, res) => {
             // Insert user into database
             db.run(
                 `INSERT INTO users (name, email, password, role, isAdmin) VALUES (?, ?, ?, ?, ?)`,
-                [name, email, hashedPassword, role || "user", isAdmin ? 1 : 0],
+                [name, email, hashedPassword, role, isAdmin ? 1 : 0],
                 function (err) {
                     if (err) {
                         console.error("❌ Registration Error:", err.message);
