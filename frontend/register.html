@@ -5,68 +5,93 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register - DocFusion</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            background: linear-gradient(135deg, #4a90e2, #6b73ff);
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
             display: flex;
             align-items: center;
             justify-content: center;
             height: 100vh;
-            margin: 0;
-            padding: 10px;
-            font-family: 'Poppins', sans-serif;
+            padding: 20px;
         }
+
         .container {
             width: 100%;
-            max-width: 400px;
+            max-width: 420px;
+            background: rgba(255, 255, 255, 0.1);
             padding: 30px;
-            background: white;
             border-radius: 12px;
-            box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(12px);
             text-align: center;
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
+
         h2 {
-            font-size: 24px;
+            font-size: 26px;
             font-weight: 600;
             margin-bottom: 20px;
-            color: #333;
+            color: #f8f9fa;
         }
+
         .input-group {
-            margin-bottom: 15px;
+            margin-bottom: 18px;
             text-align: left;
         }
+
         label {
             font-size: 14px;
             font-weight: 600;
-            color: #555;
+            color: #ddd;
             display: block;
         }
+
         input {
             width: 100%;
             padding: 12px;
-            margin-top: 5px;
-            border: 1px solid #ddd;
+            margin-top: 6px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
             border-radius: 8px;
             font-size: 14px;
+            color: #fff;
             outline: none;
             transition: 0.3s;
         }
-        input:focus {
-            border-color: #4a90e2;
-            box-shadow: 0 0 5px rgba(74, 144, 226, 0.5);
+
+        input::placeholder {
+            color: #bbb;
         }
+
+        input:focus {
+            background: rgba(255, 255, 255, 0.3);
+            border: 1px solid #f8f9fa;
+        }
+
         .checkbox-group {
             display: flex;
             align-items: center;
             gap: 8px;
-            margin-bottom: 15px;
+            margin-bottom: 18px;
         }
+
         .checkbox-group input {
             width: auto;
         }
+
         button {
             width: 100%;
             padding: 12px;
-            background: #4a90e2;
+            background: linear-gradient(45deg, #ff416c, #ff4b2b);
             color: white;
             border: none;
             border-radius: 8px;
@@ -74,19 +99,26 @@
             font-weight: 600;
             cursor: pointer;
             transition: 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 71, 91, 0.4);
         }
+
         button:hover {
-            background: #3a7bd5;
+            background: linear-gradient(45deg, #ff4b2b, #ff416c);
+            transform: scale(1.05);
         }
+
         p {
             margin-top: 15px;
             font-size: 14px;
+            color: #ccc;
         }
+
         a {
-            color: #4a90e2;
+            color: #ff4b2b;
             text-decoration: none;
             font-weight: bold;
         }
+
         a:hover {
             text-decoration: underline;
         }

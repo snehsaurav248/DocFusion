@@ -4,81 +4,114 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Panel - DocFusion</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: Arial, sans-serif;
+        * {
             margin: 0;
             padding: 0;
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
             color: white;
             text-align: center;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
         }
         header {
-            background: rgba(0, 0, 0, 0.7);
-            padding: 15px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 4px 10px rgba(255, 255, 255, 0.2);
         }
         h1 {
-            margin: 0;
+            font-weight: 600;
+            font-size: 26px;
+            text-transform: uppercase;
+            background: linear-gradient(45deg, #ff416c, #ff4b2b);
+            -webkit-background-clip: text;
+            color: transparent;
         }
         nav a, nav button {
-            background: rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.15);
             color: white;
-            padding: 10px 20px;
+            padding: 12px 25px;
             margin: 5px;
             border: none;
-            border-radius: 5px;
+            border-radius: 30px;
             cursor: pointer;
             text-decoration: none;
-            transition: background 0.3s;
+            font-size: 14px;
+            text-transform: uppercase;
+            transition: 0.3s ease-in-out;
         }
         nav a:hover, nav button:hover {
-            background: rgba(255, 255, 255, 0.4);
+            background: linear-gradient(45deg, #ff416c, #ff4b2b);
+            box-shadow: 0 0 15px rgba(255, 75, 43, 0.7);
         }
         main {
-            padding: 20px;
+            width: 80%;
+            margin-top: 30px;
         }
         section {
-            background: rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
             padding: 20px;
             margin: 20px auto;
-            border-radius: 10px;
-            max-width: 600px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+            max-width: 700px;
+            box-shadow: 0 6px 15px rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s ease-in-out;
+        }
+        section:hover {
+            transform: scale(1.05);
         }
         ul {
             list-style: none;
             padding: 0;
         }
         li {
-            background: rgba(0, 0, 0, 0.3);
-            padding: 10px;
-            margin: 5px;
-            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 12px;
+            margin: 8px;
+            border-radius: 10px;
+            font-weight: 300;
+            transition: 0.3s;
+        }
+        li:hover {
+            background: linear-gradient(45deg, #ff416c, #ff4b2b);
+            color: white;
+            box-shadow: 0 0 10px rgba(255, 75, 43, 0.6);
+            transform: scale(1.05);
         }
     </style>
 </head>
 <body onload="checkAdminAuth()">
     <header>
-        <h1>Admin Panel</h1>
+        <h1>🔥 Admin Panel 🔥</h1>
         <nav>
-            <a href="dashboard.html">User Dashboard</a>
+            <a href="dashboard.html">Dashboard</a>
             <button onclick="logout()">Logout</button>
         </nav>
     </header>
     <main>
-        <h2>Manage Users & Documents</h2>
+        <h2>✨ Manage Users & Documents ✨</h2>
         <section id="userManagement">
-            <h3>Users List</h3>
+            <h3>👥 Users List</h3>
             <ul id="userList">
                 <li>Loading users...</li>
             </ul>
         </section>
         <section id="documentManagement">
-            <h3>Documents List</h3>
+            <h3>📄 Documents List</h3>
             <ul id="documentList">
                 <li>Loading documents...</li>
             </ul>
@@ -109,15 +142,15 @@
                 });
                 const documents = await docResponse.json();
                 document.getElementById("userList").innerHTML =
-                    users.length ? users.map(user => `<li>${user.name} (${user.email})</li>`).join("")
+                    users.length ? users.map(user => `<li>👤 ${user.name} (${user.email})</li>`).join("")
                     : "<li>No users found.</li>";
                 document.getElementById("documentList").innerHTML =
-                    documents.length ? documents.map(doc => `<li>${doc.title}</li>`).join("")
+                    documents.length ? documents.map(doc => `<li>📜 ${doc.title}</li>`).join("")
                     : "<li>No documents found.</li>";
             } catch (error) {
                 console.error("Error fetching data:", error);
-                document.getElementById("userList").innerHTML = "<li>Failed to load users.</li>";
-                document.getElementById("documentList").innerHTML = "<li>Failed to load documents.</li>";
+                document.getElementById("userList").innerHTML = "<li>⚠️ Failed to load users.</li>";
+                document.getElementById("documentList").innerHTML = "<li>⚠️ Failed to load documents.</li>";
             }
         }
         document.addEventListener("DOMContentLoaded", fetchUsersAndDocuments);
