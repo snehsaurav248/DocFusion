@@ -20,7 +20,7 @@ document.addEventListener("DOMContentLoaded", function () {
             loginBtn.textContent = "Logging in...";
 
             try {
-                const response = await fetch("http://localhost:3000/auth/login", {
+                const response = await fetch("http://localhost:3000/api/auth/login", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ email, password }),
@@ -37,7 +37,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 localStorage.setItem("token", result.token);
 
                 // Role-based redirection
-                const role = result.user?.role; // Expecting role from backend
+                const role = result.user?.role;
                 const redirectPage = role === "admin" ? "admin-dashboard.html" : "dashboard.html";
 
                 window.location.href = redirectPage;
@@ -60,7 +60,7 @@ document.addEventListener("DOMContentLoaded", function () {
             const email = document.getElementById("registerEmail").value.trim();
             const password = document.getElementById("registerPassword").value.trim();
             const isAdmin = document.getElementById("registerIsAdmin").checked;
-            const role = isAdmin ? "admin" : "user"; // Assign role based on checkbox
+            const role = isAdmin ? "admin" : "user";
             const registerBtn = document.getElementById("registerBtn");
 
             if (!name || !email || !password) {
@@ -72,7 +72,7 @@ document.addEventListener("DOMContentLoaded", function () {
             registerBtn.textContent = "Registering...";
 
             try {
-                const response = await fetch("http://localhost:3000/auth/register", {
+                const response = await fetch("http://localhost:3000/api/auth/register", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ name, email, password, role }),

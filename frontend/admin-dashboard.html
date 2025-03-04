@@ -20,17 +20,21 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
+            overflow: hidden; /* Prevents full-page scrolling */
         }
         header {
             width: 100%;
+            position: fixed;
+            top: 0;
+            left: 0;
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
-            padding: 20px;
+            padding: 15px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             box-shadow: 0 4px 10px rgba(255, 255, 255, 0.2);
+            z-index: 1000;
         }
         h1 {
             font-weight: 600;
@@ -43,7 +47,7 @@
         nav a, nav button {
             background: rgba(255, 255, 255, 0.15);
             color: white;
-            padding: 12px 25px;
+            padding: 10px 20px;
             margin: 5px;
             border: none;
             border-radius: 30px;
@@ -59,7 +63,10 @@
         }
         main {
             width: 80%;
-            margin-top: 30px;
+            margin-top: 80px; /* Prevents content from going under the navbar */
+            height: calc(100vh - 100px); /* Adjusted height to fit within the viewport */
+            overflow-y: auto; /* Enables scrolling */
+            padding-bottom: 20px;
         }
         section {
             background: rgba(255, 255, 255, 0.1);
@@ -70,6 +77,8 @@
             max-width: 700px;
             box-shadow: 0 6px 15px rgba(255, 255, 255, 0.1);
             transition: transform 0.3s ease-in-out;
+            max-height: 300px; /* Prevents overflowing */
+            overflow-y: auto; /* Allows scrolling within sections */
         }
         section:hover {
             transform: scale(1.05);
@@ -133,14 +142,29 @@
         async function fetchUsersAndDocuments() {
             try {
                 const token = localStorage.getItem("token");
-                const userResponse = await fetch("http://localhost:3000/api/users", {
+                console.log("Stored Token:", token);
+
+                // Fetch Users
+                const userResponse = await fetch("http://localhost:3000/api/auth/users", {
                     headers: { "Authorization": `Bearer ${token}` }
                 });
-                const users = await userResponse.json();
+                if (!userResponse.ok) throw new Error(`User API Error: ${userResponse.status}`);
+                const userData = await userResponse.json();
+                console.log("User API Response:", userData);
+
+                // Fetch Documents
                 const docResponse = await fetch("http://localhost:3000/api/files/documents", {
                     headers: { "Authorization": `Bearer ${token}` }
                 });
-                const documents = await docResponse.json();
+                if (!docResponse.ok) throw new Error(`Document API Error: ${docResponse.status}`);
+                const docData = await docResponse.json();
+                console.log("Document API Response:", docData);
+
+                // Handle different response structures
+                const users = userData.users || userData; // Adjust based on API response
+                const documents = docData.documents || docData;
+
+                // Render UI
                 document.getElementById("userList").innerHTML =
                     users.length ? users.map(user => `<li>👤 ${user.name} (${user.email})</li>`).join("")
                     : "<li>No users found.</li>";
@@ -153,6 +177,7 @@
                 document.getElementById("documentList").innerHTML = "<li>⚠️ Failed to load documents.</li>";
             }
         }
+
         document.addEventListener("DOMContentLoaded", fetchUsersAndDocuments);
     </script>
 </body>

@@ -1,15 +1,13 @@
 const express = require("express");
 const sqlite3 = require("sqlite3").verbose();
 const cors = require("cors");
-const jwt = require("jsonwebtoken");
-const bcrypt = require("bcryptjs");
 const path = require("path");
 const fs = require("fs");
-const fileUploadRoutes = require("./fileUpload"); // Import file upload routes
+const fileUploadRoutes = require("./fileUpload"); // File upload routes
+const userRoutes = require("./users"); // User authentication routes
 
 const app = express();
 const PORT = 3000;
-const SECRET_KEY = "your_secret_key";
 
 // Database path
 const dbPath = path.join(__dirname, "database.db");
@@ -22,11 +20,8 @@ if (!fs.existsSync(dbPath)) {
 
 // Connect to SQLite database
 const db = new sqlite3.Database(dbPath, (err) => {
-    if (err) {
-        console.error("❌ SQLite Connection Error:", err.message);
-    } else {
-        console.log("✅ Connected to SQLite database.");
-    }
+    if (err) console.error("❌ SQLite Connection Error:", err.message);
+    else console.log("✅ Connected to SQLite database.");
 });
 
 // Initialize tables
@@ -42,11 +37,9 @@ db.serialize(() => {
     )`);
 });
 
-// Ensure `uploads` directory exists for file storage
+// Ensure `uploads` directory exists
 const uploadDir = path.join(__dirname, "uploads");
-if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir, { recursive: true });
-}
+if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
 
 // Middleware
 app.use(express.json());
@@ -54,98 +47,13 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors({ origin: "*", credentials: true }));
 app.use(express.static(path.join(__dirname, "../frontend"))); // Serve frontend files
 
-// Use file upload routes
-app.use("/api/files", fileUploadRoutes);
+// Routes
+app.use("/api/auth", userRoutes); // User authentication
+app.use("/api/files", fileUploadRoutes); // File upload
 
 // Root Route - Serve index.html
 app.get("/", (req, res) => {
     res.sendFile(path.join(__dirname, "../frontend", "index.html"));
-});
-
-// User Registration
-app.post("/auth/register", async (req, res) => {
-    try {
-        const { name, email, password, isAdmin } = req.body;
-        const role = isAdmin ? "admin" : "user";
-
-        if (!name || !email || !password) {
-            return res.status(400).json({ message: "All fields are required!" });
-        }
-
-        console.log("🔹 Register Request Received:", req.body);
-
-        // Check if user already exists
-        db.get("SELECT * FROM users WHERE email = ?", [email], async (err, existingUser) => {
-            if (err) return res.status(500).json({ message: "Database error!" });
-            if (existingUser) return res.status(400).json({ message: "Email already registered!" });
-
-            // Hash the password
-            const hashedPassword = await bcrypt.hash(password, 10);
-
-            // Insert user into database
-            db.run(
-                `INSERT INTO users (name, email, password, role, isAdmin) VALUES (?, ?, ?, ?, ?)`,
-                [name, email, hashedPassword, role, isAdmin ? 1 : 0],
-                function (err) {
-                    if (err) {
-                        console.error("❌ Registration Error:", err.message);
-                        return res.status(500).json({ message: "Registration failed!" });
-                    }
-                    res.json({ message: "✅ Registration successful!" });
-                }
-            );
-        });
-    } catch (error) {
-        console.error("❌ Registration Error:", error.message);
-        res.status(500).json({ message: "Internal server error!" });
-    }
-});
-
-// User Login
-app.post("/auth/login", (req, res) => {
-    try {
-        const { email, password } = req.body;
-
-        if (!email || !password) {
-            return res.status(400).json({ message: "Email and password required!" });
-        }
-
-        console.log("🔹 Login Request Received:", req.body);
-
-        db.get(`SELECT * FROM users WHERE email = ?`, [email], async (err, user) => {
-            if (err || !user) {
-                return res.status(400).json({ message: "Invalid email or password!" });
-            }
-
-            // Compare password hash
-            const isMatch = await bcrypt.compare(password, user.password);
-            if (!isMatch) {
-                return res.status(400).json({ message: "Invalid email or password!" });
-            }
-
-            // Generate JWT token
-            const token = jwt.sign(
-                { id: user.id, email: user.email, role: user.role, isAdmin: user.isAdmin },
-                SECRET_KEY,
-                { expiresIn: "1h" }
-            );
-
-            res.json({
-                message: "✅ Login successful!",
-                token,
-                user: { 
-                    name: user.name, 
-                    email: user.email, 
-                    role: user.role, 
-                    credits: user.credits,
-                    isAdmin: user.isAdmin
-                }
-            });
-        });
-    } catch (error) {
-        console.error("❌ Login Error:", error.message);
-        res.status(500).json({ message: "Internal server error!" });
-    }
 });
 
 // Health Check

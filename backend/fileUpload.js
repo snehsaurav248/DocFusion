@@ -3,17 +3,12 @@ const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
 
-
 const router = express.Router();
 
 // Ensure upload directory exists
 const uploadDir = path.join(__dirname, "uploads");
-try {
-    if (!fs.existsSync(uploadDir)) {
-        fs.mkdirSync(uploadDir, { recursive: true });
-    }
-} catch (e) {
-    console.error("Error creating upload directory:", e.message);
+if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
 }
 
 // Multer Storage Configuration
@@ -42,7 +37,7 @@ const upload = multer({
     limits: { fileSize: 5 * 1024 * 1024 }, // Limit file size to 5MB
 });
 
-// File Upload Route
+// **1️⃣ File Upload Route**
 router.post("/upload", upload.single("file"), (req, res) => {
     try {
         if (!req.file) {
@@ -56,5 +51,20 @@ router.post("/upload", upload.single("file"), (req, res) => {
         res.status(500).json({ message: "File upload failed!", error: error.message });
     }
 });
+
+// **2️⃣ Get All Uploaded Documents Route**
+router.get("/documents", (req, res) => {
+    fs.readdir(uploadDir, (err, files) => {
+        if (err) {
+            return res.status(500).json({ message: "Failed to retrieve documents" });
+        }
+        const documents = files.map((file) => ({
+            title: file,
+            filePath: `/uploads/${file}`,
+        }));
+        res.json(documents);
+    });
+});
+
 
 module.exports = router;
