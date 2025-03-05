@@ -1,184 +1,103 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Admin Panel - DocFusion</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
-            color: white;
-            text-align: center;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            overflow: hidden; /* Prevents full-page scrolling */
-        }
-        header {
-            width: 100%;
-            position: fixed;
-            top: 0;
-            left: 0;
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            padding: 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 4px 10px rgba(255, 255, 255, 0.2);
-            z-index: 1000;
-        }
-        h1 {
-            font-weight: 600;
-            font-size: 26px;
-            text-transform: uppercase;
-            background: linear-gradient(45deg, #ff416c, #ff4b2b);
-            -webkit-background-clip: text;
-            color: transparent;
-        }
-        nav a, nav button {
-            background: rgba(255, 255, 255, 0.15);
-            color: white;
-            padding: 10px 20px;
-            margin: 5px;
-            border: none;
-            border-radius: 30px;
-            cursor: pointer;
-            text-decoration: none;
-            font-size: 14px;
-            text-transform: uppercase;
-            transition: 0.3s ease-in-out;
-        }
-        nav a:hover, nav button:hover {
-            background: linear-gradient(45deg, #ff416c, #ff4b2b);
-            box-shadow: 0 0 15px rgba(255, 75, 43, 0.7);
-        }
-        main {
-            width: 80%;
-            margin-top: 80px; /* Prevents content from going under the navbar */
-            height: calc(100vh - 100px); /* Adjusted height to fit within the viewport */
-            overflow-y: auto; /* Enables scrolling */
-            padding-bottom: 20px;
-        }
-        section {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            padding: 20px;
-            margin: 20px auto;
-            border-radius: 12px;
-            max-width: 700px;
-            box-shadow: 0 6px 15px rgba(255, 255, 255, 0.1);
-            transition: transform 0.3s ease-in-out;
-            max-height: 300px; /* Prevents overflowing */
-            overflow-y: auto; /* Allows scrolling within sections */
-        }
-        section:hover {
-            transform: scale(1.05);
-        }
-        ul {
-            list-style: none;
-            padding: 0;
-        }
-        li {
-            background: rgba(255, 255, 255, 0.2);
-            padding: 12px;
-            margin: 8px;
-            border-radius: 10px;
-            font-weight: 300;
-            transition: 0.3s;
-        }
-        li:hover {
-            background: linear-gradient(45deg, #ff416c, #ff4b2b);
-            color: white;
-            box-shadow: 0 0 10px rgba(255, 75, 43, 0.6);
-            transform: scale(1.05);
-        }
-    </style>
-</head>
-<body onload="checkAdminAuth()">
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="admin-dashboard.css" />
+  </head>
+  <body onload="checkAdminAuth()">
     <header>
-        <h1>🔥 Admin Panel 🔥</h1>
-        <nav>
-            <a href="dashboard.html">Dashboard</a>
-            <button onclick="logout()">Logout</button>
-        </nav>
+      <h1>🔥 Admin Panel 🔥</h1>
+      <nav>
+        <a href="dashboard.html">Dashboard</a>
+        <button onclick="logout()">Logout</button>
+      </nav>
     </header>
     <main>
-        <h2>✨ Manage Users & Documents ✨</h2>
-        <section id="userManagement">
-            <h3>👥 Users List</h3>
-            <ul id="userList">
-                <li>Loading users...</li>
-            </ul>
-        </section>
-        <section id="documentManagement">
-            <h3>📄 Documents List</h3>
-            <ul id="documentList">
-                <li>Loading documents...</li>
-            </ul>
-        </section>
+      <h2>✨ Manage Users & Documents ✨</h2>
+      <section id="userManagement">
+        <h3>👥 Users List</h3>
+        <ul id="userList">
+          <li>Loading users...</li>
+        </ul>
+      </section>
+      <section id="documentManagement">
+        <h3>📄 Documents List</h3>
+        <ul id="documentList">
+          <li>Loading documents...</li>
+        </ul>
+      </section>
     </main>
     <script>
-        function checkAdminAuth() {
-            const user = JSON.parse(localStorage.getItem("user"));
-            if (!user || user.role !== "admin") {
-                alert("Access denied! Only admins can access this page.");
-                window.location.href = "login.html";
+      function checkAdminAuth() {
+        const user = JSON.parse(localStorage.getItem("user"));
+        if (!user || user.role !== "admin") {
+          alert("Access denied! Only admins can access this page.");
+          window.location.href = "login.html";
+        }
+      }
+      function logout() {
+        localStorage.removeItem("user");
+        localStorage.removeItem("token");
+        window.location.href = "login.html";
+      }
+      async function fetchUsersAndDocuments() {
+        try {
+          const token = localStorage.getItem("token");
+          console.log("Stored Token:", token);
+
+          // Fetch Users
+          const userResponse = await fetch(
+            "http://localhost:3000/api/auth/users",
+            {
+              headers: { Authorization: `Bearer ${token}` },
             }
-        }
-        function logout() {
-            localStorage.removeItem("user");
-            localStorage.removeItem("token");
-            window.location.href = "login.html";
-        }
-        async function fetchUsersAndDocuments() {
-            try {
-                const token = localStorage.getItem("token");
-                console.log("Stored Token:", token);
+          );
+          if (!userResponse.ok)
+            throw new Error(`User API Error: ${userResponse.status}`);
+          const userData = await userResponse.json();
+          console.log("User API Response:", userData);
 
-                // Fetch Users
-                const userResponse = await fetch("http://localhost:3000/api/auth/users", {
-                    headers: { "Authorization": `Bearer ${token}` }
-                });
-                if (!userResponse.ok) throw new Error(`User API Error: ${userResponse.status}`);
-                const userData = await userResponse.json();
-                console.log("User API Response:", userData);
-
-                // Fetch Documents
-                const docResponse = await fetch("http://localhost:3000/api/files/documents", {
-                    headers: { "Authorization": `Bearer ${token}` }
-                });
-                if (!docResponse.ok) throw new Error(`Document API Error: ${docResponse.status}`);
-                const docData = await docResponse.json();
-                console.log("Document API Response:", docData);
-
-                // Handle different response structures
-                const users = userData.users || userData; // Adjust based on API response
-                const documents = docData.documents || docData;
-
-                // Render UI
-                document.getElementById("userList").innerHTML =
-                    users.length ? users.map(user => `<li>👤 ${user.name} (${user.email})</li>`).join("")
-                    : "<li>No users found.</li>";
-                document.getElementById("documentList").innerHTML =
-                    documents.length ? documents.map(doc => `<li>📜 ${doc.title}</li>`).join("")
-                    : "<li>No documents found.</li>";
-            } catch (error) {
-                console.error("Error fetching data:", error);
-                document.getElementById("userList").innerHTML = "<li>⚠️ Failed to load users.</li>";
-                document.getElementById("documentList").innerHTML = "<li>⚠️ Failed to load documents.</li>";
+          // Fetch Documents
+          const docResponse = await fetch(
+            "http://localhost:3000/api/files/documents",
+            {
+              headers: { Authorization: `Bearer ${token}` },
             }
-        }
+          );
+          if (!docResponse.ok)
+            throw new Error(`Document API Error: ${docResponse.status}`);
+          const docData = await docResponse.json();
+          console.log("Document API Response:", docData);
 
-        document.addEventListener("DOMContentLoaded", fetchUsersAndDocuments);
+          // Handle different response structures
+          const users = userData.users || userData; // Adjust based on API response
+          const documents = docData.documents || docData;
+
+          // Render UI
+          document.getElementById("userList").innerHTML = users.length
+            ? users
+                .map((user) => `<li>👤 ${user.name} (${user.email})</li>`)
+                .join("")
+            : "<li>No users found.</li>";
+          document.getElementById("documentList").innerHTML = documents.length
+            ? documents.map((doc) => `<li>📜 ${doc.title}</li>`).join("")
+            : "<li>No documents found.</li>";
+        } catch (error) {
+          console.error("Error fetching data:", error);
+          document.getElementById("userList").innerHTML =
+            "<li>⚠️ Failed to load users.</li>";
+          document.getElementById("documentList").innerHTML =
+            "<li>⚠️ Failed to load documents.</li>";
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", fetchUsersAndDocuments);
     </script>
-</body>
+  </body>
 </html>

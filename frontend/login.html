@@ -1,190 +1,110 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Login - DocFusion</title>
-    <style>
-        @keyframes fireBg {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-
-        body {
-            background: linear-gradient(135deg, #ff512f, #ff7844, #ff9a5a, #ffb366);
-            background-size: 300% 300%;
-            animation: fireBg 6s infinite alternate ease-in-out;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            margin: 0;
-            font-family: 'Poppins', sans-serif;
-        }
-
-        .login-container {
-            width: 100%;
-            max-width: 400px;
-            padding: 30px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 16px;
-            backdrop-filter: blur(15px);
-            box-shadow: 0px 10px 40px rgba(255, 60, 0, 0.4);
-            text-align: center;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            transition: transform 0.3s ease-in-out;
-        }
-
-        .login-container:hover {
-            transform: scale(1.02);
-        }
-
-        h2 {
-            font-size: 28px;
-            font-weight: 700;
-            margin-bottom: 20px;
-            background: linear-gradient(90deg, #ffb366, #ff9a5a, #ff7844, #ff512f);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-transform: uppercase;
-        }
-
-        input {
-            width: 100%;
-            padding: 12px;
-            margin-top: 5px;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            border-radius: 8px;
-            font-size: 14px;
-            background: rgba(255, 255, 255, 0.15);
-            color: white;
-            outline: none;
-            transition: 0.3s;
-            backdrop-filter: blur(8px);
-        }
-
-        input:focus {
-            border-color: #ff7844;
-            box-shadow: 0 0 10px rgba(255, 120, 68, 0.7);
-        }
-
-        button {
-            width: 100%;
-            padding: 12px;
-            background: linear-gradient(135deg, #ff512f, #ff6f42, #ff8d5c);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: 0.3s ease;
-            box-shadow: 0 4px 15px rgba(255, 87, 34, 0.6);
-            position: relative;
-            overflow: hidden;
-        }
-
-        button::before {
-            content: "";
-            position: absolute;
-            top: -100%;
-            left: -100%;
-            width: 300%;
-            height: 300%;
-            background: radial-gradient(circle, rgba(255, 255, 255, 0.2) 10%, transparent 80%);
-            transition: 0.4s;
-        }
-
-        button:hover::before {
-            top: 0;
-            left: 0;
-        }
-
-        button:hover {
-            box-shadow: 0 0 20px rgba(255, 120, 68, 1);
-        }
-
-        .pulsing-effect {
-            animation: pulse 1.5s infinite;
-        }
-
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
-        }
-
-    </style>
-</head>
-<body>
-
+    <link rel="stylesheet" href="login.css">
+    
+  </head>
+  <body>
     <div class="login-container pulsing-effect">
-        <h2>🔥 Welcome to DocFusion</h2>
+      <h2>🔥 Welcome to DocFusion</h2>
 
-        <form id="loginForm">
-            <div style="margin-bottom: 15px; text-align: left;">
-                <label for="loginEmail" style="font-size: 14px; font-weight: 600; color: #fff5e6;">Email:</label>
-                <input type="email" id="loginEmail" placeholder="Enter your email" required>
-            </div>
+      <form id="loginForm">
+        <div style="margin-bottom: 15px; text-align: left">
+          <label
+            for="loginEmail"
+            style="font-size: 14px; font-weight: 600; color: #fff5e6"
+            >Email:</label
+          >
+          <input
+            type="email"
+            id="loginEmail"
+            placeholder="Enter your email"
+            required
+          />
+        </div>
 
-            <div style="margin-bottom: 15px; text-align: left;">
-                <label for="loginPassword" style="font-size: 14px; font-weight: 600; color: #fff5e6;">Password:</label>
-                <input type="password" id="loginPassword" placeholder="Enter your password" required>
-            </div>
+        <div style="margin-bottom: 15px; text-align: left">
+          <label
+            for="loginPassword"
+            style="font-size: 14px; font-weight: 600; color: #fff5e6"
+            >Password:</label
+          >
+          <input
+            type="password"
+            id="loginPassword"
+            placeholder="Enter your password"
+            required
+          />
+        </div>
 
-            <button type="submit" id="loginBtn">🔥 Login</button>
+        <button type="submit" id="loginBtn">🔥 Login</button>
 
-            <p style="margin-top: 15px; font-size: 14px; color: #fff5e6;">
-                Don't have an account? 
-                <a href="register.html" style="color: #ffcd9b; text-decoration: none; font-weight: bold;">Sign Up</a>
-            </p>
-        </form>
+        <p style="margin-top: 15px; font-size: 14px; color: #fff5e6">
+          Don't have an account?
+          <a
+            href="register.html"
+            style="color: #ffcd9b; text-decoration: none; font-weight: bold"
+            >Sign Up</a
+          >
+        </p>
+      </form>
     </div>
 
     <script>
-        document.getElementById("loginForm").addEventListener("submit", async function (event) {
-            event.preventDefault();
+      document
+        .getElementById("loginForm")
+        .addEventListener("submit", async function (event) {
+          event.preventDefault();
 
-            const email = document.getElementById("loginEmail").value.trim();
-            const password = document.getElementById("loginPassword").value.trim();
-            const loginBtn = document.getElementById("loginBtn");
+          const email = document.getElementById("loginEmail").value.trim();
+          const password = document
+            .getElementById("loginPassword")
+            .value.trim();
+          const loginBtn = document.getElementById("loginBtn");
 
-            if (!email || !password) {
-                alert("Please enter both email and password.");
-                return;
+          if (!email || !password) {
+            alert("Please enter both email and password.");
+            return;
+          }
+
+          loginBtn.disabled = true;
+          loginBtn.textContent = "Logging in...";
+
+          try {
+            const response = await fetch(
+              "http://localhost:3000/api/auth/login",
+              {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email, password }),
+              }
+            );
+
+            const result = await response.json();
+
+            if (response.ok) {
+              alert(result.message);
+              localStorage.setItem("user", JSON.stringify(result.user));
+              localStorage.setItem("token", result.token);
+
+              window.location.href =
+                result.user.role === "admin"
+                  ? "admin-dashboard.html"
+                  : "dashboard.html";
+            } else {
+              alert(result.message);
             }
-
-            loginBtn.disabled = true;
-            loginBtn.textContent = "Logging in...";
-
-            try {
-                const response = await fetch("http://localhost:3000/api/auth/login", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ email, password }),
-                });
-
-                const result = await response.json();
-
-                if (response.ok) {
-                    alert(result.message);
-                    localStorage.setItem("user", JSON.stringify(result.user));
-                    localStorage.setItem("token", result.token);
-                    
-                    window.location.href = result.user.role === "admin" ? "admin-dashboard.html" : "dashboard.html";
-                } else {
-                    alert(result.message);
-                }
-            } catch (error) {
-                alert("Server error! Please try again later.");
-                console.error("Login Error:", error);
-            } finally {
-                loginBtn.disabled = false;
-                loginBtn.textContent = "🔥 Login";
-            }
+          } catch (error) {
+            alert("Server error! Please try again later.");
+            console.error("Login Error:", error);
+          } finally {
+            loginBtn.disabled = false;
+            loginBtn.textContent = "🔥 Login";
+          }
         });
     </script>
-
-</body>
+  </body>
 </html>

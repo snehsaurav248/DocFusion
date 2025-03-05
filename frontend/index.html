@@ -5,111 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DocFusion - Home</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Poppins', sans-serif;
-        }
-        body {
-            background: linear-gradient(135deg, #ff4e50, #1fddff);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            overflow: hidden;
-            padding: 20px;
-        }
-        .container {
-            width: 100%;
-            max-width: 420px;
-            padding: 35px;
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(15px);
-            border-radius: 15px;
-            box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.3);
-            text-align: center;
-            color: white;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            position: relative;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        .container:hover {
-            transform: translateY(-5px);
-            box-shadow: 0px 20px 40px rgba(0, 0, 0, 0.4);
-        }
-        .container::before {
-            content: "";
-            position: absolute;
-            top: -10px;
-            left: -10px;
-            width: 100%;
-            height: 100%;
-            border-radius: 15px;
-            background: linear-gradient(45deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0));
-            z-index: -1;
-        }
-        h1 {
-            font-size: 28px;
-            font-weight: 700;
-            margin-bottom: 12px;
-        }
-        p {
-            font-size: 16px;
-            opacity: 0.9;
-            margin-bottom: 25px;
-        }
-        .nav-links {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-        .nav-links a {
-            width: 100%;
-            padding: 12px;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
-            text-decoration: none;
-            text-align: center;
-            color: white;
-            transition: background 0.3s, transform 0.2s;
-            position: relative;
-            overflow: hidden;
-        }
-        .login {
-            background: linear-gradient(90deg, #ff6b81, #ff4757);
-        }
-        .register {
-            background: linear-gradient(90deg, #1fddff, #6b73ff);
-        }
-        .nav-links a::before {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: rgba(255, 255, 255, 0.2);
-            transition: 0.4s;
-        }
-        .nav-links a:hover {
-            transform: scale(1.05);
-            box-shadow: 0px 5px 15px rgba(255, 255, 255, 0.5);
-        }
-        .nav-links a:hover::before {
-            left: 0;
-        }
-    </style>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="container">
-        <h1>Welcome to DocFusion</h1>
-        <p>Effortlessly manage and match your documents with ease.</p>
+        <h1>🚀 Welcome to DocFusion</h1>
+        <p>Effortlessly manage and match your documents with style.</p>
+
         <div class="nav-links">
-            <a href="login.html" class="login">Login</a>
-            <a href="register.html" class="register">Register</a>
+            <a href="login.html" class="login">🔑 Login</a>
+            <a href="register.html" class="register">✨ Register</a>
         </div>
     </div>
 </body>
