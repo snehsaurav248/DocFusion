@@ -19,27 +19,38 @@ if (!fs.existsSync(dbPath)) {
 }
 
 // Connect to SQLite database
-const db = new sqlite3.Database(dbPath, (err) => {
+const db = new sqlite3.Database(dbPath, sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE, (err) => {
     if (err) console.error("❌ SQLite Connection Error:", err.message);
     else console.log("✅ Connected to SQLite database.");
 });
 
 // Initialize tables
+const createTables = `
+CREATE TABLE IF NOT EXISTS users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    email TEXT UNIQUE NOT NULL,
+    password TEXT NOT NULL,
+    role TEXT DEFAULT 'user',
+    credits INTEGER DEFAULT 20,
+    isAdmin BOOLEAN DEFAULT 0
+);
+CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
+`;
+
 db.serialize(() => {
-    db.run(`CREATE TABLE IF NOT EXISTS users (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL,
-        email TEXT UNIQUE NOT NULL,
-        password TEXT NOT NULL,
-        role TEXT DEFAULT 'user',
-        credits INTEGER DEFAULT 20,
-        isAdmin BOOLEAN DEFAULT 0
-    )`);
+    db.exec(createTables, (err) => {
+        if (err) console.error("❌ Error creating tables:", err.message);
+        else console.log("✅ Database tables initialized.");
+    });
 });
+
 
 // Ensure `uploads` directory exists
 const uploadDir = path.join(__dirname, "uploads");
 if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
+
+
 
 // Middleware
 app.use(express.json());

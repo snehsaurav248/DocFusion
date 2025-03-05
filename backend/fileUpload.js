@@ -5,7 +5,6 @@ const fs = require("fs");
 const pdfParse = require("pdf-parse");
 const sqlite3 = require("sqlite3").verbose();
 const levenshtein = require("fast-levenshtein");
-// const {checkDuplicateFile,isDuplicate} = require("./middleware/checkDuplicate.js");
 
 const router = express.Router();
 
@@ -65,61 +64,18 @@ async function extractText(filePath, mimetype) {
   }
 }
 
-// router.post(
-//     "/upload",
-//     upload.single("file"),
-//     async (req, res) => {
-//         try {
-//             console.log("Upload process started...");
-
-//             if (!req.file) {
-//                 return res.status(400).json({ message: "No file uploaded!" });
-//             }
-
-//             const filePath = req.file.path;
-//             const mimetype = req.file.mimetype;
-//             console.log("File Path:", filePath, "MIME Type:", mimetype);
-
-//             // Extract text (only for PDF & TXT)
-//             let extractedText = await extractText(filePath, mimetype);
-//             console.log("Extracted Text:", extractedText);
-//             // If file is an image, store it without text content
-//             if (!extractedText && (mimetype === "image/jpeg" || mimetype === "image/png")) {
-//                 extractedText = "Image file - No text extraction needed";
-//             } else if (!extractedText) {
-//                 return res.status(400).json({ message: "Unsupported file type for text extraction!" });
-//             }
-
-//             db.run(
-//                 "INSERT INTO files (filename, content) VALUES (?, ?)",
-//                 [req.file.filename, extractedText],
-//                 function (err) {
-//                     if (err) {
-//                         console.error("Database Insertion Error:", err.message);
-//                         return res.status(500).json({ message: "Error saving file to database", error: err.message });
-//                     }
-
-//                     res.json({
-//                         message: "✅ File uploaded successfully!",
-//                         filePath: `/uploads/${req.file.filename}`,
-//                     });
-//                 }
-//             );
-
-//         } catch (error) {
-//             console.error("Error:", error.message);
-//             res.status(500).json({ message: "File upload failed!", error: error.message });
-//         }
-//     }
-// );
+// Function to calculate word frequency
 const wordFrequency = (text) => {
   const words = text.toLowerCase().match(/\b\w+\b/g) || [];
   const freq = {};
   words.forEach((word) => (freq[word] = (freq[word] || 0) + 1));
   return freq;
 };
+
+// Function to check for duplicate files
 const isDuplicate = (newText, storedDocs) => {
   const newFreq = wordFrequency(newText);
+  let duplicateFiles = [];
 
   for (const doc of storedDocs) {
     const storedFreq = wordFrequency(doc.content);
@@ -134,13 +90,14 @@ const isDuplicate = (newText, storedDocs) => {
     const wordSim = commonWords / Object.keys(newFreq).length;
 
     if (similarity > 0.85 || wordSim > 0.85) {
-      return true; // Duplicate found
+      duplicateFiles.push(doc.filename); // Store filename of duplicate
     }
   }
-  return false;
+
+  return duplicateFiles.length > 0 ? duplicateFiles : null;
 };
 
-// **1️⃣ Updated File Upload Route with Duplicate Check**
+// **File Upload Route with Duplicate Check**
 router.post("/upload", upload.single("file"), async (req, res) => {
   try {
     if (!req.file) {
@@ -150,50 +107,45 @@ router.post("/upload", upload.single("file"), async (req, res) => {
     const filePath = req.file.path;
     const mimetype = req.file.mimetype;
     const newText = await extractText(filePath, mimetype);
-    console.log("=====================" + newText);
+
     if (!newText) {
       return res.status(400).json({ message: "Could not extract text!" });
     }
 
     // Fetch existing documents
     db.all("SELECT * FROM files", [], (err, storedDocs) => {
-      if (err)
-        return res
-          .status(500)
-          .json({ message: "Database error", error: err.message });
+      if (err) {
+        return res.status(500).json({ message: "Database error", error: err.message });
+      }
 
-      if (isDuplicate(newText, storedDocs)) {
+      const duplicateFiles = isDuplicate(newText, storedDocs);
+
+      if (duplicateFiles) {
         fs.unlinkSync(filePath); // Delete uploaded file
-        return res
-          .status(400)
-          .json({ message: "Same file exists!", file: storedDocs });
+        return res.status(400).json({
+          message: "⚠️ Similar files exist!",
+          duplicateFiles, // Returning array of similar filenames
+        });
       }
 
       // Store new document
-      db.run(
-        "INSERT INTO files (filename, content) VALUES (?, ?)",
-        [req.file.filename, newText],
-        (err) => {
-          if (err)
-            return res
-              .status(500)
-              .json({ message: "Error saving file to database" });
-
-          res.json({
-            message: "✅ File uploaded successfully!",
-            filePath: `/uploads/${req.file.filename}`,
-          });
+      db.run("INSERT INTO files (filename, content) VALUES (?, ?)", [req.file.filename, newText], (err) => {
+        if (err) {
+          return res.status(500).json({ message: "Error saving file to database" });
         }
-      );
+
+        res.json({
+          message: "✅ File uploaded successfully!",
+          filePath: `/uploads/${req.file.filename}`,
+        });
+      });
     });
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "File upload failed!", error: error.message });
+    res.status(500).json({ message: "File upload failed!", error: error.message });
   }
 });
 
-// **2️⃣ Get All Uploaded Documents Route**
+// **Get All Uploaded Documents Route**
 router.get("/documents", (req, res) => {
   fs.readdir(uploadDir, (err, files) => {
     if (err) {
