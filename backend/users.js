@@ -8,7 +8,7 @@ const router = express.Router();
 const SECRET_KEY = "your_secret_key";
 
 // Database Connection
-const dbPath = path.join(__dirname, "database.db");
+const dbPath = path.join(__dirname, "database.sqlite");
 const db = new sqlite3.Database(dbPath, (err) => {
     if (err) console.error("❌ SQLite Connection Error:", err.message);
 });

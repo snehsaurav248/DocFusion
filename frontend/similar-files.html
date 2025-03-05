@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Similar Documents - DocFusion</title>
+    <link rel="stylesheet" href="similar-files.css" />
+  </head>
+  <body onload="loadSimilarFiles()">
+    <h1>⚠️ Similar Documents Found</h1>
+    <div id="similarFilesContainer">
+      <ul id="similarFilesList"></ul>
+      <a href="dashboard.html" class="back-button">⬅ Back to Dashboard</a>
+    </div>
+
+    <script>
+      function loadSimilarFiles() {
+        const similarFiles =
+          JSON.parse(localStorage.getItem("similarFiles")) || [];
+        const list = document.getElementById("similarFilesList");
+
+        if (similarFiles.length === 0) {
+          list.innerHTML =
+            "<li style='color: red;'>No similar files found.</li>";
+          return;
+        }
+
+        list.innerHTML = similarFiles
+          .map(
+            (file) =>
+              `<li>
+                    <span>${file.filename}</span> 
+                    <span style="color: #ffdb58;">${file.similarity}%</span>
+                </li>`
+          )
+          .join("");
+      }
+    </script>
+  </body>
+</html>

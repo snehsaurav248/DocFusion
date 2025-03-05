@@ -28,7 +28,7 @@
             </ul>
         </section>
 
-        <input type="file" id="fileInput" accept=".pdf,.docx,.txt,.png,.jpg">
+        <input type="file" id="fileInput" accept=".pdf,.docx,.txt">
         <button onclick="uploadDocument()">Upload New Document</button>
     </main>
 
@@ -70,65 +70,59 @@
         }
 
         async function uploadDocument() {
-    const fileInput = document.getElementById("fileInput");
-    if (!fileInput.files.length) {
-        alert("Please select a file to upload.");
-        return;
-    }
-
-    const formData = new FormData();
-    formData.append("file", fileInput.files[0]);
-
-    try {
-        const token = localStorage.getItem("token");
-        const response = await fetch("http://localhost:3000/api/files/upload", {
-            method: "POST",
-            headers: { "Authorization": `Bearer ${token}` },
-            body: formData
-        });
-
-        const result = await response.json();
-
-        if (!response.ok) {
-            if (result.message === "Same file exists!") {
-                alert("⚠️ This document already exists in the system.");
-            } else {
-                alert("Error uploading document: " + result.message);
+            const fileInput = document.getElementById("fileInput");
+            if (!fileInput.files.length) {
+                alert("Please select a file to upload.");
+                return;
             }
-            return;
+
+            const formData = new FormData();
+            formData.append("file", fileInput.files[0]);
+
+            try {
+                const token = localStorage.getItem("token");
+                const response = await fetch("http://localhost:3000/api/files/upload", {
+                    method: "POST",
+                    headers: { "Authorization": `Bearer ${token}` },
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (!response.ok) {
+                    if (result.message === "Same file exists!") {
+                        alert("⚠️ This document already exists in the system.");
+                    } else {
+                        alert("Error uploading document: " + result.message);
+                    }
+                }
+                
+                fetchUserDocuments(); // Refresh document list
+                fileInput.value = "";
+
+                if (result.similarFiles && result.similarFiles.length > 0) {
+                    localStorage.setItem("similarFiles", JSON.stringify(result.similarFiles));
+                    window.location.href = "similar-files.html";
+                }
+
+                // Fetch updated files after uploading
+                fetchUpdatedFiles();
+
+            } catch (error) {
+                console.error("Upload error:", error);
+                alert("Error uploading document.");
+            }
         }
 
-        // ✅ Display uploaded document
-        const docList = document.getElementById("documentList");
-        const newListItem = document.createElement("li");
-        newListItem.textContent = fileInput.files[0].name;
-        docList.appendChild(newListItem);
-
-        alert("✅ Document uploaded successfully!");
-
-        // ✅ Show similar documents if found
-        if (result.similarFiles && result.similarFiles.length > 0) {
-            const similarList = document.createElement("ul");
-            result.similarFiles.forEach(file => {
-                const item = document.createElement("li");
-                item.textContent = `⚠️ Similar: ${file}`;
-                item.style.color = "orange";
-                similarList.appendChild(item);
-            });
-            docList.appendChild(similarList);
+        async function fetchUpdatedFiles() {
+            try {
+                const response = await fetch("http://localhost:3000/api/files/documents");
+                const files = await response.json();
+                localStorage.setItem("similarFiles", JSON.stringify(files)); // Sync with frontend storage
+            } catch (error) {
+                console.error("Error fetching updated files:", error);
+            }
         }
-
-        fileInput.value = "";
-        fetchUserDocuments();  // Refresh document list
-
-    } catch (error) {
-        console.error("Upload error:", error);
-        alert("Error uploading document.");
-    }
-}
-
-
     </script>
-
 </body>
 </html>

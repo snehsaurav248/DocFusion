@@ -72,10 +72,10 @@ const wordFrequency = (text) => {
   return freq;
 };
 
-// Function to check for duplicate files
-const isDuplicate = (newText, storedDocs) => {
+// Function to check for duplicate files and calculate similarity
+const findSimilarFiles = (newText, storedDocs) => {
   const newFreq = wordFrequency(newText);
-  let duplicateFiles = [];
+  let similarFiles = [];
 
   for (const doc of storedDocs) {
     const storedFreq = wordFrequency(doc.content);
@@ -89,12 +89,17 @@ const isDuplicate = (newText, storedDocs) => {
     }
     const wordSim = commonWords / Object.keys(newFreq).length;
 
-    if (similarity > 0.85 || wordSim > 0.85) {
-      duplicateFiles.push(doc.filename); // Store filename of duplicate
+    const finalSimilarity = Math.max(similarity, wordSim) * 100; // Convert to percentage
+
+    if (finalSimilarity > 85) {
+      similarFiles.push({
+        filename: doc.filename,
+        similarity: finalSimilarity.toFixed(2) + "%", // Show percentage
+      });
     }
   }
 
-  return duplicateFiles.length > 0 ? duplicateFiles : null;
+  return similarFiles.length > 0 ? similarFiles : null;
 };
 
 // **File Upload Route with Duplicate Check**
@@ -115,46 +120,58 @@ router.post("/upload", upload.single("file"), async (req, res) => {
     // Fetch existing documents
     db.all("SELECT * FROM files", [], (err, storedDocs) => {
       if (err) {
-        return res.status(500).json({ message: "Database error", error: err.message });
+        return res
+          .status(500)
+          .json({ message: "Database error", error: err.message });
       }
 
-      const duplicateFiles = isDuplicate(newText, storedDocs);
+      const similarFiles = findSimilarFiles(newText, storedDocs);
 
-      if (duplicateFiles) {
+      if (similarFiles) {
         fs.unlinkSync(filePath); // Delete uploaded file
         return res.status(400).json({
           message: "⚠️ Similar files exist!",
-          duplicateFiles, // Returning array of similar filenames
+          similarFiles: similarFiles, // New format (with percentage)
         });
       }
 
       // Store new document
-      db.run("INSERT INTO files (filename, content) VALUES (?, ?)", [req.file.filename, newText], (err) => {
-        if (err) {
-          return res.status(500).json({ message: "Error saving file to database" });
-        }
+      db.run(
+        "INSERT INTO files (filename, content) VALUES (?, ?)",
+        [req.file.filename, newText],
+        (err) => {
+          if (err) {
+            return res
+              .status(500)
+              .json({ message: "Error saving file to database" });
+          }
 
-        res.json({
-          message: "✅ File uploaded successfully!",
-          filePath: `/uploads/${req.file.filename}`,
-        });
-      });
+          res.json({
+            message: "✅ File uploaded successfully!",
+            filePath: `/uploads/${req.file.filename}`,
+          });
+        }
+      );
     });
   } catch (error) {
-    res.status(500).json({ message: "File upload failed!", error: error.message });
+    res
+      .status(500)
+      .json({ message: "File upload failed!", error: error.message });
   }
 });
 
-// **Get All Uploaded Documents Route**
+// **Get All Uploaded Documents**
 router.get("/documents", (req, res) => {
   fs.readdir(uploadDir, (err, files) => {
     if (err) {
       return res.status(500).json({ message: "Failed to retrieve documents" });
     }
+
     const documents = files.map((file) => ({
       title: file,
       filePath: `/uploads/${file}`,
     }));
+
     res.json(documents);
   });
 });
