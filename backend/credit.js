@@ -11,11 +11,7 @@ const checkCredits = async (req, res, next) => {
       const currentTime = new Date();
       const lastResetTime = new Date(user.lastReset);
       
-    //  if (currentTime.toDateString() !== lastResetTime.toDateString()) {
-    //     // Reset credits if a new day
-    //     db.run("UPDATE users SET credits = 20, lastReset = datetime('now') WHERE id = ?", [userId]);
-    //     user.credits = 20;
-    //   }
+    
   
       if (user.credits <= 0) {
         return res.status(400).json({ message: "⚠️ No credits left! Wait for reset or request admin approval." });

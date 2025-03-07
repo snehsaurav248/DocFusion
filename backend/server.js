@@ -319,6 +319,7 @@ app.get("/api/analytics", (req, res) => {
 });
 
 
+
 // Root Route - Serve index.html
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "../frontend", "index.html"));

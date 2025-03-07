@@ -14,7 +14,6 @@ cron.schedule("0 0 * * *", async () => {
     }
   });
 
-  // Reset the global counter stored in-memory or elsewhere, based on your implementation
   globalCounter = 0; // Assuming globalCounter is declared globally in the server.js
   console.log("✅ Global counter reset at midnight.");
 });
