@@ -3,89 +3,115 @@ const sqlite3 = require("sqlite3").verbose();
 const cors = require("cors");
 const path = require("path");
 const fs = require("fs");
-const fileUploadRoutes = require("./fileUpload"); // File upload routes
-const userRoutes = require("./users"); // User authentication routes
+const jwt = require("jsonwebtoken");
+require("./cronJob.js"); 
+
+const fileUploadRoutes = require("./fileUpload"); 
+const userRoutes = require("./users"); 
+// const { checkAndDeductCredit } = require("./users"); // Only if needed
 
 const app = express();
 const PORT = 3000;
+const SECRET_KEY = "your-secret-key"; // Change this to a secure key
 
-// Database path
+// Database Path
 const dbPath = path.join(__dirname, "database.sqlite");
-
-// Ensure database file exists
+// Ensure Database File Exists
 if (!fs.existsSync(dbPath)) {
-    console.log("⚠️ Database file not found. Creating a new one...");
-    fs.writeFileSync(dbPath, "");
+  console.log("⚠️ Database file not found. Creating a new one...");
+  fs.writeFileSync(dbPath, ""); // Creates an empty file if it doesn't exist
 }
 
-// Connect to SQLite database
-const db = new sqlite3.Database(dbPath, sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE, (err) => {
+// Connect to SQLite Database
+const db = new sqlite3.Database(
+  dbPath,
+  sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE,
+  (err) => {
     if (err) {
-        console.error("❌ SQLite Connection Error:", err.message);
-        process.exit(1);
+      console.error("❌ SQLite Connection Error:", err.message);
+      process.exit(1);
     } else {
-        console.log(`✅ Connected to SQLite database at: ${dbPath}`);
+      console.log(`✅ Connected to SQLite database at: ${dbPath}`);
     }
-});
+  }
+);
 
-// Ensure `uploads` directory exists
+// Ensure `uploads` Directory Exists
 const uploadDir = path.join(__dirname, "uploads");
 if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
 
-// Function to initialize tables
 const createTables = () => {
-    db.run(
+    db.serialize(() => {
+      db.run(
         `CREATE TABLE IF NOT EXISTS users (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT NOT NULL,
-            email TEXT UNIQUE NOT NULL,
-            password TEXT NOT NULL,
-            role TEXT DEFAULT 'user',
-            credits INTEGER DEFAULT 20,
-            isAdmin BOOLEAN DEFAULT 0
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          name TEXT NOT NULL,
+          email TEXT UNIQUE NOT NULL,
+          password TEXT NOT NULL,
+          role TEXT DEFAULT 'user',
+          credits INTEGER DEFAULT 20,
+          isAdmin BOOLEAN DEFAULT 0,
+          lastReset TEXT DEFAULT (datetime('now'))
         );`,
         (err) => {
-            if (err) console.error("❌ Error creating users table:", err.message);
-            else console.log("✅ Users table initialized.");
+          if (err) console.error("❌ Error creating users table:", err.message);
+          else console.log("✅ Users table initialized.");
         }
-    );
-
-    db.run(
+      );
+  
+      db.run(
         `CREATE TABLE IF NOT EXISTS files (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            filename TEXT NOT NULL,
-            content TEXT NOT NULL,
-            uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          filename TEXT NOT NULL,
+          content TEXT NOT NULL,
+          uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );`,
         (err) => {
-            if (err) console.error("❌ Error creating files table:", err.message);
-            else console.log("✅ Files table initialized inside database.sqlite.");
+          if (err) console.error("❌ Error creating files table:", err.message);
+          else console.log("✅ Files table initialized.");
         }
-    );
-};
-
-// Initialize tables
-createTables();
-
+      );
+    });
+  };
+  
+  // Initialize Tables Before Starting Server
+  createTables();
+  
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors({ origin: "*", credentials: true }));
-app.use(express.static(path.join(__dirname, "../frontend"))); // Serve frontend files
+app.use(express.static(path.join(__dirname, "../frontend"))); // Serve Frontend Files
 
-// Routes
-app.use("/api/auth", userRoutes); // User authentication
-app.use("/api/files", fileUploadRoutes); // File upload
+// ✅ Validate Middleware Before Using
+if (typeof userRoutes !== "function") {
+  console.error("❌ userRoutes is not a valid Express Router.");
+} else {
+  app.use("/api/auth", userRoutes); // Authentication Routes
+}
+
+if (typeof fileUploadRoutes !== "function") {
+  console.error("❌ fileUploadRoutes is not a valid Express Router.");
+} else {
+  app.use("/api/files", fileUploadRoutes); // File Upload Routes
+}
+
+// // 📌 Scan Document API (Protected with JWT)
+// app.post("/api/scan/document", checkAndDeductCredit, (req, res) => {
+//   res.json({ message: "✅ Document scanned successfully!" });
+// });
 
 // Root Route - Serve index.html
 app.get("/", (req, res) => {
-    res.sendFile(path.join(__dirname, "../frontend", "index.html"));
+  res.sendFile(path.join(__dirname, "../frontend", "index.html"));
 });
 
-// Health Check
+// Health Check Endpoint
 app.get("/api/health", (req, res) => {
-    res.json({ status: "✅ Server is running!" });
+  res.json({ status: "✅ Server is running!" });
 });
 
 // Start Server
-app.listen(PORT, () => console.log(`🚀 Server running at http://localhost:${PORT}`));
+app.listen(PORT, () =>
+  console.log(`🚀 Server running at http://localhost:${PORT}`)
+);

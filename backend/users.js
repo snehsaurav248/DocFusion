@@ -13,32 +13,52 @@ const db = new sqlite3.Database(dbPath, (err) => {
     if (err) console.error("❌ SQLite Connection Error:", err.message);
 });
 
-// User Registration
+// User Registration Route
 router.post("/register", async (req, res) => {
     try {
         const { name, email, password, isAdmin } = req.body;
         const role = isAdmin ? "admin" : "user";
 
+        // Input Validation
         if (!name || !email || !password) {
             return res.status(400).json({ message: "All fields are required!" });
         }
 
         console.log("🔹 Register Request Received:", req.body);
 
+        // Check if user already exists
         db.get("SELECT * FROM users WHERE email = ?", [email], async (err, existingUser) => {
-            if (err) return res.status(500).json({ message: "Database error!" });
-            if (existingUser) return res.status(400).json({ message: "Email already registered!" });
+            if (err) {
+                console.error("❌ Database error:", err.message);
+                return res.status(500).json({ message: "Database error!" });
+            }
 
-            const hashedPassword = await bcrypt.hash(password, 10);
+            if (existingUser) {
+                return res.status(400).json({ message: "Email already registered!" });
+            }
 
-            db.run(
-                `INSERT INTO users (name, email, password, role, isAdmin) VALUES (?, ?, ?, ?, ?)`,
-                [name, email, hashedPassword, role, isAdmin ? 1 : 0],
-                function (err) {
-                    if (err) return res.status(500).json({ message: "Registration failed!" });
-                    res.json({ message: "✅ Registration successful!" });
-                }
-            );
+            try {
+                // Hash password
+                const hashedPassword = await bcrypt.hash(password, 10);
+
+                // Insert new user
+                db.run(
+                    `INSERT INTO users (name, email, password, role, isAdmin, lastReset) 
+                     VALUES (?, ?, ?, ?, ?, datetime('now'))`,
+                    [name, email, hashedPassword, role, isAdmin ? 1 : 0],
+                    function (err) {
+                        if (err) {
+                            console.error("❌ Error inserting user:", err.message);
+                            return res.status(500).json({ message: "Registration failed!" });
+                        }
+                        console.log("✅ User registered successfully:", { id: this.lastID, name, email, role });
+                        res.status(201).json({ message: "✅ Registration successful!" });
+                    }
+                );
+            } catch (hashError) {
+                console.error("❌ Password Hashing Error:", hashError.message);
+                res.status(500).json({ message: "Internal server error!" });
+            }
         });
     } catch (error) {
         console.error("❌ Registration Error:", error.message);
@@ -46,43 +66,54 @@ router.post("/register", async (req, res) => {
     }
 });
 
-// User Login
+
 router.post("/login", (req, res) => {
-    try {
-        const { email, password } = req.body;
-        if (!email || !password) return res.status(400).json({ message: "Email and password required!" });
+  try {
+    const { email, password } = req.body;
+    if (!email || !password) return res.status(400).json({ message: "Email and password required!" });
 
-        console.log("🔹 Login Request Received:", req.body);
+    console.log("🔹 Login Request Received:", req.body);
 
-        db.get(`SELECT * FROM users WHERE email = ?`, [email], async (err, user) => {
-            if (err || !user) return res.status(400).json({ message: "Invalid email or password!" });
+    db.get(`SELECT * FROM users WHERE email = ?`, [email], async (err, user) => {
+      if (err || !user) return res.status(400).json({ message: "Invalid email or password!" });
 
-            const isMatch = await bcrypt.compare(password, user.password);
-            if (!isMatch) return res.status(400).json({ message: "Invalid email or password!" });
+      const isMatch = await bcrypt.compare(password, user.password);
+      if (!isMatch) return res.status(400).json({ message: "Invalid email or password!" });
 
-            const token = jwt.sign(
-                { id: user.id, email: user.email, role: user.role, isAdmin: user.isAdmin },
-                SECRET_KEY,
-                { expiresIn: "1h" }
-            );
+      // Reset credits if a new day
+      const currentTime = new Date();
+      const lastResetTime = new Date(user.lastReset);
 
-            res.json({
-                message: "✅ Login successful!",
-                token,
-                user: { 
-                    name: user.name, 
-                    email: user.email, 
-                    role: user.role, 
-                    credits: user.credits,
-                    isAdmin: user.isAdmin
-                }
-            });
-        });
-    } catch (error) {
-        console.error("❌ Login Error:", error.message);
-        res.status(500).json({ message: "Internal server error!" });
-    }
+      if (currentTime.toDateString() !== lastResetTime.toDateString()) {
+        db.run("UPDATE users SET credits = 20, lastReset = datetime('now') WHERE id = ?", [user.id]);
+        user.credits = 20; // Update locally
+      }
+
+      const token = jwt.sign(
+        { id: user.id, email: user.email, role: user.role, isAdmin: user.isAdmin },
+        SECRET_KEY,
+        { expiresIn: "1h" }
+      );
+
+      res.json({
+        message: "✅ Login successful!",
+        token,
+        user: { 
+          id: user.id, 
+          name: user.name, 
+          email: user.email, 
+          role: user.role, 
+          credits: user.credits,
+          isAdmin: user.isAdmin
+        }
+      });
+    });
+  } catch (error) {
+    console.error("❌ Login Error:", error.message);
+    res.status(500).json({ message: "Internal server error!" });
+  }
 });
+
 
 // Middleware to verify token
 const verifyToken = (req, res, next) => {
