@@ -20,7 +20,7 @@ document.addEventListener("DOMContentLoaded", function () {
             loginBtn.textContent = "Logging in...";
 
             try {
-                const response = await fetch("http://localhost:3000/api/auth/login", {
+                const response = await fetch("https://docfusion.onrender.com/api/auth/login", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ email, password }),
@@ -72,7 +72,7 @@ document.addEventListener("DOMContentLoaded", function () {
             registerBtn.textContent = "Registering...";
 
             try {
-                const response = await fetch("http://localhost:3000/api/auth/register", {
+                const response = await fetch("https://docfusion.onrender.com/api/auth/register", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ name, email, password, role }),

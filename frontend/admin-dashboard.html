@@ -55,7 +55,7 @@
 
           // Fetch Users
           const userResponse = await fetch(
-            "http://localhost:3000/api/auth/users",
+            "https://docfusion.onrender.com/api/auth/users",
             {
               headers: { Authorization: `Bearer ${token}` },
             }
@@ -67,7 +67,7 @@
 
           // Fetch Documents
           const docResponse = await fetch(
-            "http://localhost:3000/api/files/documents",
+            "https://docfusion.onrender.com/api/files/documents",
             {
               headers: { Authorization: `Bearer ${token}` },
             }
