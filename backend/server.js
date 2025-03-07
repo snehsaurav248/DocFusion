@@ -96,10 +96,6 @@ if (typeof fileUploadRoutes !== "function") {
   app.use("/api/files", fileUploadRoutes); // File Upload Routes
 }
 
-// // 📌 Scan Document API (Protected with JWT)
-// app.post("/api/scan/document", checkAndDeductCredit, (req, res) => {
-//   res.json({ message: "✅ Document scanned successfully!" });
-// });
 
 // Root Route - Serve index.html
 app.get("/", (req, res) => {
