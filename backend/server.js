@@ -1,5 +1,4 @@
 
-
 const express = require("express");
 const sqlite3 = require("sqlite3").verbose();
 const cors = require("cors");
@@ -186,9 +185,10 @@ app.get("/api/analytics", (req, res) => {
   // Query to get credits data for the last 5 days
   const query = `
     SELECT date, COALESCE(credits, 0) AS credits
-    FROM daily_credits
-    WHERE date >= datetime('now', '-5 days')
-    ORDER BY date ASC;
+FROM daily_credits
+WHERE date >= strftime('%Y-%m-%d', 'now', '-5 days')
+ORDER BY date ASC;
+
   `;
 
   db.all(query, [], (err, rows) => {
