@@ -74,7 +74,7 @@ const findSimilarFiles = async(newText, storedDocs) => {
   let similarFiles = [];
 
   for (const doc of storedDocs) {
-    const storedFreq =await  wordFrequency(doc.content);
+    const storedFreq = wordFrequency(doc.content);
     const levenshteinDist = levenshtein.get(newText, doc.content);
     const similarity =
       1 - levenshteinDist / Math.max(newText.length, doc.content.length);
@@ -94,7 +94,6 @@ const findSimilarFiles = async(newText, storedDocs) => {
       });
     }
   }
-
   return similarFiles.length > 0 ? similarFiles : null;
 };
 
@@ -106,9 +105,7 @@ router.post(
   async (req, res) => {
     try {
       const userId = req.user.id;
-      console.log("--userId: " + userId);
-
-
+      console.log("This user id uploading file: " + userId);
       const user = await new Promise((resolve, reject) => {
         db.get("SELECT credits FROM users WHERE id = ?", [userId], (err, user) => {
           if (err) reject(err);
@@ -125,16 +122,14 @@ router.post(
           message: "⚠️ Insufficient credits! Wait for reset or request admin approval.",
         });
       }
-
-      //console.log("--------------------start detecting-");
-
+      console.log("deduct credit", user.credits)
       await new Promise((resolve, reject) => {
         db.run("UPDATE users SET credits = credits - 1 WHERE id = ?", [userId], (err) => {
           if (err) reject(err);
           else resolve();
         });
       });
-      // console.log("--------------------start detecting 2")
+      
       if (!req.file) {
         return res.status(400).json({ message: "No file uploaded!" });
       }
@@ -149,25 +144,25 @@ router.post(
       }
 
       
-      // console.log("fectcing-----------------")
+      console.log("fectcing-----------------")
       const storedDocs = await new Promise((resolve, reject) => {
         db.all("SELECT * FROM files", [], (err, docs) => {
           if (err) reject(err);
           else resolve(docs);
         });
       });
-      // console.log("find similarityg----------------")
-      const similarFiles = findSimilarFiles(newText, storedDocs);
-      console.log("similar similarityg----------------"+similarFiles)
-      if (similarFiles.length > 0) {
-        console.log("similarityg----------------" + similarFiles.length)
+      console.log("find similarityg----------------")
+      let similarFiles = []
+      similarFiles =  await findSimilarFiles(newText, storedDocs);
+      console.log("similarity found:", similarFiles ? similarFiles.length : 0);
+      if (similarFiles && similarFiles.length > 0) {
         fs.unlinkSync(filePath);
         return res.status(400).json({ message: "Similar files exist!", similarFiles });
       }
-
       // Insert file into DB
-      // console.log("fectcing1-----------------+" + req.file.filename)
+      console.log("fectcing1-----------------+" + req.file.filename)
       await new Promise((resolve, reject) => {
+        console.log("inside insertion");
         db.run(
           "INSERT INTO files (filename, content) VALUES (?, ?)",
           [req.file.filename, newText],
