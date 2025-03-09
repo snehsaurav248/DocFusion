@@ -69,12 +69,12 @@ const wordFrequency = (text) => {
   return freq;
 };
 
-const findSimilarFiles = (newText, storedDocs) => {
+const findSimilarFiles = async(newText, storedDocs) => {
   const newFreq = wordFrequency(newText);
   let similarFiles = [];
 
   for (const doc of storedDocs) {
-    const storedFreq = wordFrequency(doc.content);
+    const storedFreq =await  wordFrequency(doc.content);
     const levenshteinDist = levenshtein.get(newText, doc.content);
     const similarity =
       1 - levenshteinDist / Math.max(newText.length, doc.content.length);
@@ -108,7 +108,7 @@ router.post(
       const userId = req.user.id;
       console.log("--userId: " + userId);
 
-      // Fetch user credits
+
       const user = await new Promise((resolve, reject) => {
         db.get("SELECT credits FROM users WHERE id = ?", [userId], (err, user) => {
           if (err) reject(err);
@@ -126,16 +126,15 @@ router.post(
         });
       }
 
-      console.log("--------------------start detecting-");
+      //console.log("--------------------start detecting-");
 
-      // Deduct 1 credit
       await new Promise((resolve, reject) => {
         db.run("UPDATE users SET credits = credits - 1 WHERE id = ?", [userId], (err) => {
           if (err) reject(err);
           else resolve();
         });
       });
-
+      // console.log("--------------------start detecting 2")
       if (!req.file) {
         return res.status(400).json({ message: "No file uploaded!" });
       }
@@ -145,25 +144,29 @@ router.post(
       const newText = await extractText(filePath, mimetype);
 
       if (!newText) {
-        fs.unlinkSync(filePath); // Cleanup file
+        fs.unlinkSync(filePath); 
         return res.status(400).json({ message: "Could not extract text!" });
       }
 
-      // Fetch existing files from DB
+      
+      // console.log("fectcing-----------------")
       const storedDocs = await new Promise((resolve, reject) => {
         db.all("SELECT * FROM files", [], (err, docs) => {
           if (err) reject(err);
           else resolve(docs);
         });
       });
-
+      // console.log("find similarityg----------------")
       const similarFiles = findSimilarFiles(newText, storedDocs);
+      console.log("similar similarityg----------------"+similarFiles)
       if (similarFiles.length > 0) {
+        console.log("similarityg----------------" + similarFiles.length)
         fs.unlinkSync(filePath);
         return res.status(400).json({ message: "Similar files exist!", similarFiles });
       }
 
       // Insert file into DB
+      // console.log("fectcing1-----------------+" + req.file.filename)
       await new Promise((resolve, reject) => {
         db.run(
           "INSERT INTO files (filename, content) VALUES (?, ?)",
@@ -174,6 +177,7 @@ router.post(
           }
         );
       });
+  console.log("insertion completed")
 
       res.json({
         message: "File uploaded successfully!",
